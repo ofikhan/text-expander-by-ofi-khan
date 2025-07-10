@@ -1,0 +1,39 @@
+body {
+  width: 400px;
+  padding: 10px;
+  font-family: Arial, sans-serif;
+  background-color: #f5f6f5;
+}
+h1, h2, .import-label {
+  font-weight: bold;
+  font-size: 16px;
+  color: #00594c;
+}
+button {
+  padding: 5px 10px;
+  background-color: #007bff;
+  color: white;
+  border: none;
+  cursor: pointer;
+  border-radius: 3px;
+}
+button:hover {
+  background-color: #0056b3;
+}
+.shortcut-item {
+  margin-bottom: 10px;
+  padding: 10px;
+  background-color: white;
+  border-radius: 3px;
+  box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+}
+.input-box, .button-file {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  margin: 10px 0px;
+}
+#import {
+  width: auto;
+  align-self: flex-start;
+}

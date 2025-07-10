@@ -1,0 +1,25 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Text Expander By Ofi Khan</title>
+  <link rel="stylesheet" href="popup.css">
+</head>
+<body>
+  <h1>Text Expander Shortcuts</h1>
+  <div id="shortcut-list"></div>
+  <h2>Add New Shortcut</h2>
+  <div class="input-box">
+    <input id="shortcut" placeholder="Shortcut (e.g., ty)" aria-label="Shortcut input">
+    <textarea id="expanded" placeholder="Expanded text (e.g., Thank you)" aria-label="Expanded text input"></textarea>
+  </div>
+  <div class="button-shortcut">
+    <button id="add">Add Shortcut</button>
+    <button id="export">Export Shortcuts</button>
+  </div>
+  <div class="button-file">
+    <label for="import" class="import-label">Import Shortcuts</label>
+    <input type="file" id="import" accept=".json" aria-label="Import file selection">
+  </div>
+  <script src="popup.js"></script>
+</body>
+</html>
