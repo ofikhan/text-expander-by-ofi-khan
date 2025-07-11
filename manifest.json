@@ -1,6 +1,6 @@
 {
   "manifest_version": 3,
-  "name": "Text Expander By Ofi khan",
+  "name": "Text Expander By Ofi Khan",
   "version": "1.0",
   "description": "A simple text expander for easing repetitive typing tasks.",
   "permissions": ["activeTab", "storage"],
@@ -28,7 +28,7 @@
       "js": ["content.js"]
     }
   ],
-  "commands": { 
+  "commands": {
     "_execute_action": {
       "suggested_key": {
         "default": "Ctrl+Shift+O",
