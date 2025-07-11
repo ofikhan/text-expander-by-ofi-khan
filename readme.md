@@ -38,14 +38,15 @@ A lightweight Chrome extension designed to streamline text expansion, perfect fo
 - `popup.html`: The popup interface for managing shortcuts.
 - `popup.js`: JavaScript logic for adding, deleting, exporting, and importing shortcuts.
 - `popup.css`: Styles for the popup interface.
-- `icons/`: Directory containing the "TE by Ofi" icon in various sizes.
+- `icons`: Directory containing the "TE by Ofi" icon in various sizes.
+- `LICENSE`: MIT License file.
 
 ## Contributing
 Feel free to fork this repository and submit pull requests if you’d like to contribute! Suggestions for new features (e.g., cloud sync, more styling options) are welcome.
 
 ## License
-This project is open-source and available under the MIT License.
+This project is open-source and available under the [MIT License](LICENSE).
 
 ## Acknowledgements
-Built by Ofi Khan.
+Built by [Ofi Khan](https://www.ofikhan.com).
 Inspired by the need for efficient text expansion in customer support workflows.
