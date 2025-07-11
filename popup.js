@@ -1,13 +1,13 @@
 // Define loadShortcuts outside the event listener
 function loadShortcuts() {
   const shortcutList = document.getElementById("shortcut-list");
-  chrome.storage.sync.get("shortcuts", (data) => {
+  chrome.storage.local.get("shortcuts", (data) => { // Changed to local
     shortcutList.innerHTML = "";
     const shortcuts = data.shortcuts || {};
     for (const [shortcut, expanded] of Object.entries(shortcuts)) {
       const div = document.createElement("div");
       div.className = "shortcut-item";
-      div.innerHTML = `<strong>${shortcut}</strong>: ${expanded.replace(/\n/g, "<br>")}<button style="margin: 5px;" data-shortcut="${shortcut}">Delete</button>`;
+      div.innerHTML = `<strong>${shortcut}</strong>: ${expanded.replace(/\n/g, "<br>")}<button style="margin:5px;" data-shortcut="${shortcut}">Delete</button>`;
       shortcutList.appendChild(div);
     }
   });
@@ -26,10 +26,10 @@ document.addEventListener("DOMContentLoaded", () => {
     const shortcut = shortcutInput.value.trim();
     const expanded = expandedInput.value.trim();
     if (shortcut && expanded) {
-      chrome.storage.sync.get("shortcuts", (data) => {
+      chrome.storage.local.get("shortcuts", (data) => { // Changed to local
         const shortcuts = data.shortcuts || {};
         shortcuts[shortcut] = expanded;
-        chrome.storage.sync.set({ shortcuts }, () => {
+        chrome.storage.local.set({ shortcuts }, () => { // Changed to local
           shortcutInput.value = "";
           expandedInput.value = "";
           loadShortcuts();
@@ -42,10 +42,10 @@ document.addEventListener("DOMContentLoaded", () => {
   shortcutList.addEventListener("click", (event) => {
     if (event.target.tagName === "BUTTON") {
       const shortcut = event.target.dataset.shortcut;
-      chrome.storage.sync.get("shortcuts", (data) => {
+      chrome.storage.local.get("shortcuts", (data) => { // Changed to local
         const shortcuts = data.shortcuts || {};
         delete shortcuts[shortcut];
-        chrome.storage.sync.set({ shortcuts }, loadShortcuts);
+        chrome.storage.local.set({ shortcuts }, loadShortcuts); // Changed to local
       });
     }
   });
@@ -53,7 +53,7 @@ document.addEventListener("DOMContentLoaded", () => {
   // Export shortcuts
   if (exportButton) {
     exportButton.addEventListener("click", () => {
-      chrome.storage.sync.get("shortcuts", (data) => {
+      chrome.storage.local.get("shortcuts", (data) => { // Changed to local
         const blob = new Blob([JSON.stringify(data.shortcuts || {}, null, 2)], { type: "application/json" });
         const url = URL.createObjectURL(blob);
         const a = document.createElement("a");
@@ -75,7 +75,7 @@ document.addEventListener("DOMContentLoaded", () => {
           try {
             const shortcuts = JSON.parse(e.target.result);
             if (shortcuts && typeof shortcuts === 'object') {
-              chrome.storage.sync.set({ shortcuts }, loadShortcuts);
+              chrome.storage.local.set({ shortcuts }, loadShortcuts); // Changed to local
             } else {
               console.error("Invalid shortcut data format");
             }
