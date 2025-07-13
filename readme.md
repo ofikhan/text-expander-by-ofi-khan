@@ -6,18 +6,18 @@ A lightweight Chrome extension designed to streamline text expansion, perfect fo
 - **Add and Delete Shortcuts**: Easily create and remove custom shortcuts (e.g., `ty` expands to "Thank you").
 - **Export Shortcuts**: Save your shortcuts as a JSON file for backup or sharing.
 - **Import Shortcuts**: Load shortcuts from a JSON file to quickly restore or transfer settings.
-- **Custom Icon**: Features a vibrant "TE by Ofi" icon with a digital art design.
 - **User-Friendly Popup**: Intuitive interface to manage shortcuts directly from the browser.
+- **Keyboard Commands**: Opens and closes popup with keyboard commands `cmd + shift + o` (MAC) or `ctrl + shift + o` (Windows)  
 
 ## Installation
-1. **Clone the Repository**:
-   git clone https://github.com/ofikhan/text-expander-by-ofi-khan.git
+1. **Download the project file**:
+   - Download the [project file as a ZIP](https://github.com/ofikhan/text-expander-by-ofi-khan/archive/refs/heads/main.zip) from the GitHub repository.
 
-2. Load the Extension in Chrome:
+2. **Load the Extension in Chrome**:
     - Open Chrome and go to `chrome://extensions/`.
     - Enable "Developer mode" (top right toggle).
     - Click "Load unpacked" and select the cloned `text-expander-by-ofi-khan` folder. 
-3. Verify:
+3. **Verify**:
     - The extension icon should appear in your Chrome toolbar. Click it to open the popup and start using it.
 
 ## Usage
@@ -34,11 +34,14 @@ A lightweight Chrome extension designed to streamline text expansion, perfect fo
     - Use the "Import Shortcuts" option to upload a previously exported file.
 
 ## Project Structure
-- `manifest.json`: Configuration file for the Chrome extension.
+- `manifest.json`: Configuration file defining the extension's permissions, scripts, and icons.
 - `popup.html`: The popup interface for managing shortcuts.
 - `popup.js`: JavaScript logic for adding, deleting, exporting, and importing shortcuts.
 - `popup.css`: Styles for the popup interface.
-- `icons`: Directory containing the "TE by Ofi" icon in various sizes.
+- `content.js`: JavaScript for handling shortcut expansion on web pages.
+- `content.css`: Styles for content script interactions (currently minimal).
+- `background.js`: Background script for initializing defaults and syncing shortcut updates.
+- `icons`: Directory containing the icon in various sizes (16x16, 32x32, 48x48, 128x128).
 - `LICENSE`: MIT License file.
 
 ## Contributing
