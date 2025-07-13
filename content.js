@@ -3,6 +3,7 @@ let shortcuts = {};
 function loadShortcuts() {
   chrome.storage.local.get("shortcuts", (data) => {
     shortcuts = data.shortcuts || {};
+    console.log("Shortcuts loaded:", shortcuts); // Debug log
   });
 }
 
@@ -12,18 +13,19 @@ loadShortcuts();
 chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
   if (message.action === "updateShortcuts") {
     shortcuts = message.shortcuts || {};
+    console.log("Shortcuts updated:", shortcuts); // Debug log
   }
 });
 
-// Debounced input handler to improve performance
+// Debounced input handler with better shortcut detection
 function handleInput(event) {
   if (event.target.tagName === "INPUT" || event.target.tagName === "TEXTAREA") {
     const input = event.target;
     let text = input.value;
     for (const [shortcut, expanded] of Object.entries(shortcuts)) {
-      if (text.endsWith(shortcut)) {
+      if (text.includes(shortcut) && (text.length === shortcut.length || text.slice(-shortcut.length - 1, -shortcut.length) === " ")) {
         const expandedText = expanded.replace("{date}", new Date().toLocaleDateString());
-        const start = text.slice(0, -shortcut.length);
+        const start = text.slice(0, text.lastIndexOf(shortcut));
         input.value = start + expandedText;
         // Move cursor to end
         const end = input.value.length;
@@ -42,9 +44,9 @@ function handleInput(event) {
   }
 }
 
-// Use a debouncer to limit frequent calls
 let timeoutId;
 document.addEventListener("input", (event) => {
+  console.log("Input event triggered"); // Debug log
   clearTimeout(timeoutId);
   timeoutId = setTimeout(() => handleInput(event), 100); // 100ms debounce
 });
