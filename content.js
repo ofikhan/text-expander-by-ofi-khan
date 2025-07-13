@@ -3,21 +3,40 @@ let shortcuts = {};
 function loadShortcuts() {
   chrome.storage.local.get("shortcuts", (data) => {
     shortcuts = data.shortcuts || {};
-    console.log("Shortcuts loaded:", shortcuts); // Debug log
+    console.log("Shortcuts loaded:", shortcuts);
+    applyToAllFrames();
   });
 }
 
-loadShortcuts();
+function applyToAllFrames() {
+  document.querySelectorAll("iframe").forEach((frame) => {
+    try {
+      const doc = frame.contentDocument || frame.contentWindow.document;
+      if (doc) {
+        setupInputListener(doc);
+      }
+    } catch (e) {
+      console.log("Cannot access iframe:", e);
+    }
+  });
+}
 
-// Listen for shortcut updates from background
-chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
-  if (message.action === "updateShortcuts") {
-    shortcuts = message.shortcuts || {};
-    console.log("Shortcuts updated:", shortcuts); // Debug log
-  }
-});
+function setupInputListener(doc) {
+  const inputs = doc.querySelectorAll("input, textarea");
+  inputs.forEach((input) => {
+    input.addEventListener("input", handleInput);
+  });
 
-// Debounced input handler with better shortcut detection
+  // Handle shadow DOM (e.g., Google Docs)
+  const shadowRoots = doc.querySelectorAll("*").map(el => el.shadowRoot).filter(sr => sr);
+  shadowRoots.forEach((shadowRoot) => {
+    const shadowInputs = shadowRoot.querySelectorAll("input, textarea");
+    shadowInputs.forEach((input) => {
+      input.addEventListener("input", handleInput);
+    });
+  });
+}
+
 function handleInput(event) {
   if (event.target.tagName === "INPUT" || event.target.tagName === "TEXTAREA") {
     const input = event.target;
@@ -27,7 +46,6 @@ function handleInput(event) {
         const expandedText = expanded.replace("{date}", new Date().toLocaleDateString());
         const start = text.slice(0, text.lastIndexOf(shortcut));
         input.value = start + expandedText;
-        // Move cursor to end
         const end = input.value.length;
         if (input.setSelectionRange) {
           input.setSelectionRange(end, end);
@@ -46,7 +64,22 @@ function handleInput(event) {
 
 let timeoutId;
 document.addEventListener("input", (event) => {
-  console.log("Input event triggered"); // Debug log
+  console.log("Input event triggered on main document");
   clearTimeout(timeoutId);
-  timeoutId = setTimeout(() => handleInput(event), 100); // 100ms debounce
+  timeoutId = setTimeout(() => handleInput(event), 100);
 });
+
+// Initial setup and listen for updates
+loadShortcuts();
+chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
+  if (message.action === "updateShortcuts") {
+    shortcuts = message.shortcuts || {};
+    console.log("Shortcuts updated:", shortcuts);
+    applyToAllFrames();
+  }
+});
+
+// Handle dynamic frame additions
+new MutationObserver((mutations) => {
+  applyToAllFrames();
+}).observe(document.body, { childList: true, subtree: true });
