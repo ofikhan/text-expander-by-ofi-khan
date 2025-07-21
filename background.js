@@ -27,3 +27,9 @@ chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
     });
   }
 });
+
+chrome.commands.onCommand.addListener((command) => {
+  if (command === "_execute_action") {
+    chrome.action.openPopup();
+  }
+});
