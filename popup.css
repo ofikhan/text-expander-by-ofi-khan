@@ -4,11 +4,13 @@ body {
   font-family: Arial, sans-serif;
   background-color: #f5f6f5;
 }
+
 h1, h2, .import-label {
   font-weight: bold;
   font-size: 16px;
   color: #00594c;
 }
+
 button {
   padding: 5px 10px;
   background-color: #007bff;
@@ -17,9 +19,11 @@ button {
   cursor: pointer;
   border-radius: 3px;
 }
+
 button:hover {
   background-color: #0056b3;
 }
+
 .shortcut-item {
   margin-bottom: 10px;
   padding: 10px;
@@ -27,13 +31,223 @@ button:hover {
   border-radius: 3px;
   box-shadow: 0 1px 3px rgba(0,0,0,0.1);
 }
+
 .input-box, .button-file {
   display: flex;
   flex-direction: column;
   gap: 10px;
   margin: 10px 0px;
 }
+
 #import {
   width: auto;
   align-self: flex-start;
+}
+
+/* New Features Styles */
+
+/* Tab System */
+.tab-container {
+  display: flex;
+  margin-bottom: 15px;
+}
+
+.tab {
+  flex: 1;
+  padding: 10px;
+  background: white;
+  border: 1px solid #ddd;
+  cursor: pointer;
+  text-align: center;
+  transition: background 0.3s;
+  color: #00594c;
+  font-weight: bold;
+}
+
+.tab:first-child {
+  border-top-left-radius: 3px;
+  border-bottom-left-radius: 3px;
+}
+
+.tab:last-child {
+  border-top-right-radius: 3px;
+  border-bottom-right-radius: 3px;
+}
+
+.tab.active {
+  background: #00594c;
+  color: white;
+}
+
+.tab-content {
+  display: none;
+}
+
+.tab-content.active {
+  display: block;
+}
+
+/* Settings Section */
+.settings-section {
+  background: white;
+  padding: 15px;
+  margin: 10px 0;
+  border-radius: 3px;
+  box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+}
+
+.settings-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin: 8px 0;
+  color: #00594c;
+}
+
+/* Toggle Switch */
+.toggle-switch {
+  position: relative;
+  width: 50px;
+  height: 24px;
+  background: #ddd;
+  border-radius: 12px;
+  cursor: pointer;
+  transition: background 0.3s;
+}
+
+.toggle-switch.active {
+  background: #00594c;
+}
+
+.toggle-switch::after {
+  content: '';
+  position: absolute;
+  width: 20px;
+  height: 20px;
+  border-radius: 50%;
+  background: white;
+  top: 2px;
+  left: 2px;
+  transition: left 0.3s;
+}
+
+.toggle-switch.active::after {
+  left: 28px;
+}
+
+/* Statistics Section */
+.stats-section {
+  background: white;
+  padding: 15px;
+  margin: 10px 0;
+  border-radius: 3px;
+  box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+}
+
+.stats-section h3 {
+  color: #00594c;
+  margin-top: 0;
+  font-size: 14px;
+}
+
+.stats-item {
+  display: flex;
+  justify-content: space-between;
+  margin: 5px 0;
+  padding: 8px;
+  background: #f5f6f5;
+  border-radius: 3px;
+  border-left: 3px solid #00594c;
+}
+
+/* Variable Help */
+.variable-help {
+  background: white;
+  padding: 10px;
+  margin: 10px 0;
+  border-radius: 3px;
+  border: 1px solid #00594c;
+  font-size: 12px;
+}
+
+.variable-help h4 {
+  margin: 0 0 5px 0;
+  color: #00594c;
+  font-size: 12px;
+}
+
+.variable-list {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 5px;
+}
+
+.variable-list span {
+  font-family: monospace;
+  background: #f5f6f5;
+  padding: 2px 4px;
+  border-radius: 2px;
+  font-size: 11px;
+}
+
+/* Status Indicator */
+.status-indicator {
+  display: inline-block;
+  width: 12px;
+  height: 12px;
+  border-radius: 50%;
+  margin-right: 8px;
+}
+
+.status-enabled {
+  background: #00594c;
+}
+
+.status-disabled {
+  background: #dc3545;
+}
+
+/* Button Groups */
+.button-group {
+  display: flex;
+  gap: 5px;
+  flex-wrap: wrap;
+}
+
+.button-group button {
+  flex: 1;
+  min-width: 80px;
+}
+
+/* Enhanced shortcut item display */
+.shortcut-item {
+  display: flex;
+  align-items: center;
+  margin-bottom: 8px;
+  padding: 8px;
+  background-color: white;
+  border-radius: 3px;
+  box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+}
+
+.shortcut-item strong {
+  color: #00594c;
+}
+
+/* Refresh stats button styling */
+#refresh-stats {
+  background-color: #00594c;
+}
+
+#refresh-stats:hover {
+  background-color: #004238;
+}
+
+/* Clear stats button styling */
+#clear-stats {
+  background-color: #dc3545;
+}
+
+#clear-stats:hover {
+  background-color: #c82333;
 }

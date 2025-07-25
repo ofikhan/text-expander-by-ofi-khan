@@ -5,21 +5,101 @@
   <link rel="stylesheet" href="popup.css">
 </head>
 <body>
-  <h1>Text Expander Shortcuts</h1>
-  <div id="shortcut-list"></div>
-  <h2>Add New Shortcut</h2>
-  <div class="input-box">
-    <input id="shortcut" placeholder="Shortcut (e.g., ty)" aria-label="Shortcut input">
-    <textarea id="expanded" placeholder="Expanded text (e.g., Thank you)" aria-label="Expanded text input"></textarea>
+  <div class="tab-container">
+    <div class="tab active" data-tab="shortcuts">Shortcuts</div>
+    <div class="tab" data-tab="settings">Settings</div>
+    <div class="tab" data-tab="stats">Stats</div>
   </div>
-  <div class="button-shortcut">
-    <button id="add">Add Shortcut</button>
-    <button id="export">Export Shortcuts</button>
+
+  <!-- Shortcuts Tab -->
+  <div id="shortcuts-tab" class="tab-content active">
+    <h1>
+      <span id="status-indicator" class="status-indicator status-enabled"></span>
+      Text Expander Shortcuts
+    </h1>
+    
+    <div id="shortcut-list"></div>
+    
+    <h2>Add New Shortcut</h2>
+    <div class="variable-help">
+      <h4>Available Variables:</h4>
+      <div class="variable-list">
+        <span>{date}</span><span>{time}</span>
+        <span>{datetime}</span><span>{year}</span>
+        <span>{month}</span><span>{day}</span>
+        <span>{timestamp}</span><span>{cursor}</span>
+      </div>
+    </div>
+    
+    <div class="input-box">
+      <input id="shortcut" placeholder="Shortcut (e.g., ty)" aria-label="Shortcut input">
+      <textarea id="expanded" placeholder="Expanded text (e.g., Thank you {date})" aria-label="Expanded text input"></textarea>
+    </div>
+    
+    <div class="button-shortcut">
+      <button id="add">Add Shortcut</button>
+    </div>
   </div>
-  <div class="button-file">
-    <label for="import" class="import-label">Import Shortcuts</label>
-    <input type="file" id="import" accept=".json" aria-label="Import file selection">
+
+  <!-- Settings Tab -->
+  <div id="settings-tab" class="tab-content">
+    <h1>Settings</h1>
+    
+    <div class="settings-section">
+      <div class="settings-row">
+        <label>Enable Text Expander</label>
+        <div id="enable-toggle" class="toggle-switch active"></div>
+      </div>
+      
+      <div class="settings-row">
+        <label>Case Sensitive Matching</label>
+        <div id="case-toggle" class="toggle-switch"></div>
+      </div>
+    </div>
+    
+    <div class="button-group">
+      <button id="export">Export Data</button>
+      <button id="clear-stats">Clear Stats</button>
+    </div>
+    
+    <div class="button-file">
+      <label for="import" class="import-label">Import Data</label>
+      <input type="file" id="import" accept=".json" aria-label="Import file selection">
+    </div>
   </div>
+
+  <!-- Stats Tab -->
+  <div id="stats-tab" class="tab-content">
+    <h1>Usage Statistics</h1>
+    
+    <div class="stats-section">
+      <h3>Most Used Shortcuts</h3>
+      <div id="stats-list">
+        <p>No statistics available yet. Start using shortcuts to see data here!</p>
+      </div>
+    </div>
+    
+    <div class="stats-section">
+      <h3>Summary</h3>
+      <div id="stats-summary">
+        <div class="stats-item">
+          <span>Total Shortcuts:</span>
+          <strong id="total-shortcuts">0</strong>
+        </div>
+        <div class="stats-item">
+          <span>Total Expansions:</span>
+          <strong id="total-expansions">0</strong>
+        </div>
+        <div class="stats-item">
+          <span>Most Used:</span>
+          <strong id="most-used">None</strong>
+        </div>
+      </div>
+    </div>
+    
+    <button id="refresh-stats">Refresh Stats</button>
+  </div>
+
   <script src="popup.js"></script>
 </body>
 </html>

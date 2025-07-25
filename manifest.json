@@ -1,9 +1,10 @@
 {
   "manifest_version": 3,
   "name": "Text Expander By Ofi Khan",
-  "version": "1.2", 
-  "description": "A simple text expander for easing repetitive typing tasks.",
-  "permissions": ["activeTab", "storage"],
+  "version": "2.0", 
+  "description": "A universal text expander for easing repetitive typing tasks across all websites.",
+  "permissions": ["storage", "contextMenus"],
+  "optional_permissions": ["activeTab"],
   "background": {
     "service_worker": "background.js"
   },
@@ -11,7 +12,7 @@
     "default_popup": "popup.html",
     "default_icon": {
       "16": "icon16.png",
-      "32": "icon32.png",
+      "32": "icon32.png", 
       "48": "icon48.png",
       "128": "icon128.png"
     }
@@ -19,7 +20,7 @@
   "icons": {
     "16": "icon16.png",
     "32": "icon32.png",
-    "48": "icon48.png",
+    "48": "icon48.png", 
     "128": "icon128.png"
   },
   "content_scripts": [
@@ -28,7 +29,13 @@
       "css": ["content.css"],
       "js": ["content.js"],
       "all_frames": true,
-      "run_at": "document_end"
+      "run_at": "document_idle",
+      "exclude_matches": [
+        "*://*/robots.txt",
+        "*://*/*/api/*",
+        "*://*/wp-admin/*",
+        "*://*/admin/*"
+      ]
     }
   ],
   "web_accessible_resources": [
@@ -45,5 +52,6 @@
       },
       "description": "Open Text Expander By Ofi Khan Popup"
     }
-  }
+  },
+  "host_permissions": []
 }
