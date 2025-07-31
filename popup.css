@@ -25,11 +25,17 @@ button:hover {
 }
 
 .shortcut-item {
-  margin-bottom: 10px;
-  padding: 10px;
+  display: flex;
+  align-items: center;
+  margin-bottom: 8px;
+  padding: 8px;
   background-color: white;
   border-radius: 3px;
   box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+}
+
+.shortcut-item strong {
+  color: #00594c;
 }
 
 .input-box, .button-file {
@@ -43,8 +49,6 @@ button:hover {
   width: auto;
   align-self: flex-start;
 }
-
-/* New Features Styles */
 
 /* Tab System */
 .tab-container {
@@ -150,6 +154,12 @@ button:hover {
   font-size: 14px;
 }
 
+#stats-list {
+  max-height: 180px; /* Increased height to show 10 shortcuts without scrollbar */
+  overflow-y: auto; /* Hide overflow instead of scrolling */
+  padding-right: 5px;
+}
+
 .stats-item {
   display: flex;
   justify-content: space-between;
@@ -219,28 +229,38 @@ button:hover {
   min-width: 80px;
 }
 
-/* Enhanced shortcut item display */
-.shortcut-item {
-  display: flex;
-  align-items: center;
-  margin-bottom: 8px;
-  padding: 8px;
-  background-color: white;
+/* Scrollable shortcut list */
+#shortcut-list-container {
+  margin-bottom: 15px;
+}
+
+#shortcut-list {
+  max-height: 150px; /* Reduced height to show only 3 shortcuts */
+  overflow-y: auto;
+  padding-right: 5px; /* Space for scrollbar */
+}
+
+/* Custom scrollbar styling - Applied to both shortcut and stats lists */
+#shortcut-list::-webkit-scrollbar,
+#stats-list::-webkit-scrollbar {
+  width: 6px;
+}
+
+#shortcut-list::-webkit-scrollbar-track,
+#stats-list::-webkit-scrollbar-track {
+  background: #f1f1f1;
   border-radius: 3px;
-  box-shadow: 0 1px 3px rgba(0,0,0,0.1);
 }
 
-.shortcut-item strong {
-  color: #00594c;
+#shortcut-list::-webkit-scrollbar-thumb,
+#stats-list::-webkit-scrollbar-thumb {
+  background: #00594c;
+  border-radius: 3px;
 }
 
-/* Refresh stats button styling */
-#refresh-stats {
-  background-color: #00594c;
-}
-
-#refresh-stats:hover {
-  background-color: #004238;
+#shortcut-list::-webkit-scrollbar-thumb:hover,
+#stats-list::-webkit-scrollbar-thumb:hover {
+  background: #004238;
 }
 
 /* Clear stats button styling */

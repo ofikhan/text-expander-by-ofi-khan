@@ -59,19 +59,22 @@ function saveSettings() {
   });
 }
 
-// Shortcuts Management
+// Shortcuts Management - Updated to be scrollable
 function loadShortcuts() {
   const shortcutList = document.getElementById("shortcut-list");
+  
   chrome.storage.local.get("shortcuts", (data) => {
     shortcutList.innerHTML = "";
     const shortcuts = data.shortcuts || {};
+    const shortcutEntries = Object.entries(shortcuts);
     
-    if (Object.keys(shortcuts).length === 0) {
+    if (shortcutEntries.length === 0) {
       shortcutList.innerHTML = '<p style="color: #666; font-style: italic;">No shortcuts added yet. Add your first shortcut below!</p>';
       return;
     }
     
-    for (const [shortcut, expanded] of Object.entries(shortcuts)) {
+    // Create all shortcut elements
+    shortcutEntries.forEach(([shortcut, expanded]) => {
       const div = document.createElement("div");
       div.className = "shortcut-item";
       
@@ -86,18 +89,12 @@ function loadShortcuts() {
         </div>
         <button style="margin-left: 10px;" data-shortcut="${shortcut}" title="Delete ${shortcut}">Delete</button>
       `;
-      div.style.display = 'flex';
-      div.style.alignItems = 'center';
-      div.style.marginBottom = '8px';
-      div.style.padding = '8px';
-      div.style.background = '#f9f9f9';
-      div.style.borderRadius = '4px';
       
       shortcutList.appendChild(div);
-    }
+    });
     
     // Update total shortcuts in stats
-    document.getElementById('total-shortcuts').textContent = Object.keys(shortcuts).length;
+    document.getElementById('total-shortcuts').textContent = shortcutEntries.length;
     
     // Notify background to reload shortcuts in all tabs
     chrome.runtime.sendMessage({ action: "reloadShortcuts" });
@@ -206,8 +203,34 @@ function importData(file) {
   reader.readAsText(file);
 }
 
-// Event Listeners
-document.addEventListener("DOMContentLoaded", () => {
+// Check if keyboard shortcuts are enabled
+function checkKeyboardShortcuts() {
+  chrome.commands.getAll((commands) => {
+    const executeCommand = commands.find(cmd => cmd.name === '_execute_action');
+    if (!executeCommand || !executeCommand.shortcut) {
+      // Show warning message to user
+      const warningDiv = document.createElement('div');
+      warningDiv.style.cssText = `
+        background: #fff3cd;
+        border: 1px solid #ffeaa7;
+        padding: 10px;
+        margin: 10px 0;
+        border-radius: 3px;
+        font-size: 12px;
+        color: #856404;
+      `;
+      warningDiv.innerHTML = `
+        <strong>⚠️ Keyboard shortcut not enabled!</strong><br>
+        Go to <a href="chrome://extensions/shortcuts" target="_blank">chrome://extensions/shortcuts</a> 
+        to enable the popup shortcut.
+      `;
+      document.body.insertBefore(warningDiv, document.body.firstChild);
+    }
+  });
+}
+
+// Initialize when DOM is loaded
+document.addEventListener('DOMContentLoaded', function() {
   const shortcutList = document.getElementById("shortcut-list");
   const shortcutInput = document.getElementById("shortcut");
   const expandedInput = document.getElementById("expanded");
@@ -217,7 +240,6 @@ document.addEventListener("DOMContentLoaded", () => {
   const enableToggle = document.getElementById("enable-toggle");
   const caseToggle = document.getElementById("case-toggle");
   const clearStatsButton = document.getElementById("clear-stats");
-  const refreshStatsButton = document.getElementById("refresh-stats");
 
   // Initialize tabs
   initTabs();
@@ -325,10 +347,7 @@ document.addEventListener("DOMContentLoaded", () => {
     }
   });
 
-  // Refresh statistics
-  refreshStatsButton.addEventListener("click", loadStats);
-
-  // Initial loads
+  // Initial loads 
   loadShortcuts();
   loadSettings();
 });

@@ -3,6 +3,7 @@
 <head>
   <title>Text Expander By Ofi Khan</title>
   <link rel="stylesheet" href="popup.css">
+
 </head>
 <body>
   <div class="tab-container">
@@ -18,7 +19,9 @@
       Text Expander Shortcuts
     </h1>
     
-    <div id="shortcut-list"></div>
+    <div id="shortcut-list-container">
+      <div id="shortcut-list"></div>
+    </div>
     
     <h2>Add New Shortcut</h2>
     <div class="variable-help">
@@ -33,7 +36,7 @@
     
     <div class="input-box">
       <input id="shortcut" placeholder="Shortcut (e.g., ty)" aria-label="Shortcut input">
-      <textarea id="expanded" placeholder="Expanded text (e.g., Thank you)" aria-label="Expanded text input"></textarea>
+      <textarea id="expanded" placeholder="Expanded text (e.g., Thank you {date})" aria-label="Expanded text input"></textarea>
     </div>
     
     <div class="button-shortcut">
@@ -55,6 +58,8 @@
         <label>Case Sensitive Matching</label>
         <div id="case-toggle" class="toggle-switch"></div>
       </div>
+      
+
     </div>
     
     <div class="button-group">
@@ -96,8 +101,6 @@
         </div>
       </div>
     </div>
-    
-    <button id="refresh-stats">Refresh Stats</button>
   </div>
 
   <script src="popup.js"></script>
