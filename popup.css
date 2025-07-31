@@ -154,12 +154,6 @@ button:hover {
   font-size: 14px;
 }
 
-#stats-list {
-  max-height: 180px; /* Increased height to show 10 shortcuts without scrollbar */
-  overflow-y: auto; /* Hide overflow instead of scrolling */
-  padding-right: 5px;
-}
-
 .stats-item {
   display: flex;
   justify-content: space-between;
@@ -234,9 +228,10 @@ button:hover {
   margin-bottom: 15px;
 }
 
-#shortcut-list {
-  max-height: 150px; /* Reduced height to show only 3 shortcuts */
-  overflow-y: auto;
+#shortcut-list,
+#stats-list {
+  max-height: 200px; 
+  overflow-y: scroll;
   padding-right: 5px; /* Space for scrollbar */
 }
 
