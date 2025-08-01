@@ -56,8 +56,8 @@ function expandVariables(text) {
     .replace(/\{year\}/g, now.getFullYear().toString())
     .replace(/\{month\}/g, (now.getMonth() + 1).toString().padStart(2, '0'))
     .replace(/\{day\}/g, now.getDate().toString().padStart(2, '0'))
-    .replace(/\{timestamp\}/g, now.getTime().toString())
-    .replace(/\{cursor\}/g, '|CURSOR|');
+    .replace(/\{timestamp\}/g, now.getTime().toString());
+    // Note: {cursor} is handled separately in the expansion functions
 }
 
 // Enhanced matching function
@@ -122,26 +122,6 @@ function trackExpansion(shortcut, expanded) {
   });
 }
 
-// Handle cursor positioning
-function setCursorPosition(element, expandedText) {
-  const cursorMarker = '|CURSOR|';
-  if (expandedText.includes(cursorMarker)) {
-    const cursorIndex = expandedText.indexOf(cursorMarker);
-    const newText = expandedText.replace(cursorMarker, '');
-    
-    if (element.tagName === 'INPUT' || element.tagName === 'TEXTAREA') {
-      const currentValue = element.value;
-      element.value = currentValue.replace(expandedText, newText);
-      const textStart = element.value.lastIndexOf(newText);
-      const cursorPos = textStart + cursorIndex;
-      element.setSelectionRange(cursorPos, cursorPos);
-    }
-    
-    return newText;
-  }
-  return expandedText;
-}
-
 function handleInput(event) {
   const input = event.target;
   if (!shouldExpandOnSite(input)) return;
@@ -168,15 +148,23 @@ function handleInput(event) {
         timestamp: Date.now()
       };
       
-      const finalExpandedText = setCursorPosition(input, expandedText);
-      const newText = beforeShortcut + finalExpandedText + afterCursor;
-      input.value = newText;
-      
-      if (!expandedText.includes('|CURSOR|')) {
-        const newCursorPos = beforeShortcut.length + finalExpandedText.length;
-        if (input.setSelectionRange) {
-          input.setSelectionRange(newCursorPos, newCursorPos);
-        }
+      // Handle cursor positioning
+      if (expandedText.includes('{cursor}')) {
+        const cursorIndex = expandedText.indexOf('{cursor}');
+        const finalExpandedText = expandedText.replace('{cursor}', '');
+        const newText = beforeShortcut + finalExpandedText + afterCursor;
+        input.value = newText;
+        
+        // Set cursor position
+        const newCursorPos = beforeShortcut.length + cursorIndex;
+        input.setSelectionRange(newCursorPos, newCursorPos);
+      } else {
+        const newText = beforeShortcut + expandedText + afterCursor;
+        input.value = newText;
+        
+        // Set cursor at end of expanded text
+        const newCursorPos = beforeShortcut.length + expandedText.length;
+        input.setSelectionRange(newCursorPos, newCursorPos);
       }
       
       input.dispatchEvent(new Event('input', { bubbles: true }));
@@ -204,18 +192,25 @@ function handleKeyDown(event) {
         const expandedText = expandVariables(match.expanded);
         const beforeShortcut = textBeforeCursor.slice(0, -lastWord.length);
         const afterCursor = text.substring(cursorPos);
-        
         const triggerChar = event.key === 'Tab' ? '\t' : (event.key === 'Enter' ? '\n' : ' ');
-        const finalExpandedText = setCursorPosition(input, expandedText);
-        const newText = beforeShortcut + finalExpandedText + triggerChar + afterCursor;
         
-        input.value = newText;
-        
-        if (!expandedText.includes('|CURSOR|')) {
-          const newCursorPos = beforeShortcut.length + finalExpandedText.length + 1;
-          if (input.setSelectionRange) {
-            input.setSelectionRange(newCursorPos, newCursorPos);
-          }
+        // Handle cursor positioning
+        if (expandedText.includes('{cursor}')) {
+          const cursorIndex = expandedText.indexOf('{cursor}');
+          const finalExpandedText = expandedText.replace('{cursor}', '');
+          const newText = beforeShortcut + finalExpandedText + triggerChar + afterCursor;
+          input.value = newText;
+          
+          // Set cursor position (before the trigger character)
+          const newCursorPos = beforeShortcut.length + cursorIndex;
+          input.setSelectionRange(newCursorPos, newCursorPos);
+        } else {
+          const newText = beforeShortcut + expandedText + triggerChar + afterCursor;
+          input.value = newText;
+          
+          // Set cursor after trigger character
+          const newCursorPos = beforeShortcut.length + expandedText.length + 1;
+          input.setSelectionRange(newCursorPos, newCursorPos);
         }
         
         input.dispatchEvent(new Event('input', { bubbles: true }));
@@ -250,13 +245,28 @@ function handleContentEditableInput(event) {
       
       const beforeShortcut = textBeforeCursor.slice(0, -lastWord.length);
       const afterCursor = text.substring(cursorPos);
-      const newText = beforeShortcut + expandedText + afterCursor;
       
-      textNode.textContent = newText;
+      // Handle cursor positioning for contenteditable
+      if (expandedText.includes('{cursor}')) {
+        const cursorIndex = expandedText.indexOf('{cursor}');
+        const finalExpandedText = expandedText.replace('{cursor}', '');
+        const newText = beforeShortcut + finalExpandedText + afterCursor;
+        textNode.textContent = newText;
+        
+        // Set cursor position
+        const newCursorPos = beforeShortcut.length + cursorIndex;
+        range.setStart(textNode, newCursorPos);
+        range.setEnd(textNode, newCursorPos);
+      } else {
+        const newText = beforeShortcut + expandedText + afterCursor;
+        textNode.textContent = newText;
+        
+        // Set cursor at end of expanded text
+        const newCursorPos = beforeShortcut.length + expandedText.length;
+        range.setStart(textNode, newCursorPos);
+        range.setEnd(textNode, newCursorPos);
+      }
       
-      const newCursorPos = beforeShortcut.length + expandedText.length;
-      range.setStart(textNode, newCursorPos);
-      range.setEnd(textNode, newCursorPos);
       selection.removeAllRanges();
       selection.addRange(range);
       
@@ -294,15 +304,29 @@ function handleContentEditableKeyDown(event) {
         const expandedText = expandVariables(match.expanded);
         const beforeShortcut = textBeforeCursor.slice(0, -lastWord.length);
         const afterCursor = text.substring(cursorPos);
-        
         const triggerChar = event.key === 'Tab' ? '\t' : (event.key === 'Enter' ? '\n' : ' ');
-        const newText = beforeShortcut + expandedText + triggerChar + afterCursor;
         
-        textNode.textContent = newText;
+        // Handle cursor positioning for contenteditable
+        if (expandedText.includes('{cursor}')) {
+          const cursorIndex = expandedText.indexOf('{cursor}');
+          const finalExpandedText = expandedText.replace('{cursor}', '');
+          const newText = beforeShortcut + finalExpandedText + triggerChar + afterCursor;
+          textNode.textContent = newText;
+          
+          // Set cursor position (before the trigger character)
+          const newCursorPos = beforeShortcut.length + cursorIndex;
+          range.setStart(textNode, newCursorPos);
+          range.setEnd(textNode, newCursorPos);
+        } else {
+          const newText = beforeShortcut + expandedText + triggerChar + afterCursor;
+          textNode.textContent = newText;
+          
+          // Set cursor after trigger character
+          const newCursorPos = beforeShortcut.length + expandedText.length + 1;
+          range.setStart(textNode, newCursorPos);
+          range.setEnd(textNode, newCursorPos);
+        }
         
-        const newCursorPos = beforeShortcut.length + expandedText.length + 1;
-        range.setStart(textNode, newCursorPos);
-        range.setEnd(textNode, newCursorPos);
         selection.removeAllRanges();
         selection.addRange(range);
         
