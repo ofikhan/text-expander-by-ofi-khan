@@ -9,12 +9,14 @@ A powerful and lightweight Chrome extension designed to streamline text expansio
 - **Real-time expansion** - Text expands as you type or when you press space/tab/enter
 
 ### 📝 Advanced Shortcut Management
-- **Add and Delete Shortcuts**: Create custom shortcuts (e.g., `ty` → "Thank you")
-- **Default shortcuts included**: Ready-to-use examples (`ty`, `brb`, `omw`, `lmk`, `sig`)
+- **Add and Delete Shortcuts**: Create custom shortcuts (e.g., `asap` → "As Soon As Possible")
+- **Default shortcuts included**: Ready-to-use examples (`/ty`, `brb`, `omw`, `lmk`, `sig`)
 - **Case sensitivity options**: Choose between case-sensitive or case-insensitive matching
 - **Smart expansion**: Expands on space, tab, or enter key press
 - **Scrollable shortcut list**: Organized display with smooth scrolling for large collections
 - **Duplicate detection**: Warns when adding existing shortcuts with replace option
+- **Bulk deletion**: Delete all shortcuts at once with confirmation dialog
+- **Search Option**: Quickly find shortcuts in large lists with real-time search
 
 ### 🔧 Enhanced Variables System
 Support for dynamic content insertion with cursor positioning:
@@ -33,6 +35,7 @@ Support for dynamic content insertion with cursor positioning:
 - **Detailed statistics dashboard** - Total expansions, most popular shortcuts
 - **Performance insights** - Understand your typing patterns and productivity gains
 - **Usage summary** - Complete overview of shortcut performance
+- **Auto-sync statistics** - Statistics update immediately when shortcuts are modified
 
 ### 🎛️ Enhanced Settings & Controls
 - **Enable/Disable toggle** - Turn the extension on/off without uninstalling
@@ -47,17 +50,22 @@ Support for dynamic content insertion with cursor positioning:
 - **Easy migration** - Transfer settings between devices/browsers seamlessly
 - **Clear statistics option** - Reset usage data when needed
 - **Data validation** - Import validation with detailed feedback
+- **Bulk operations** - Delete all shortcuts with confirmation for quick reset
 
 ### ⌨️ Keyboard Integration & Accessibility
 - **Popup shortcut**: `Ctrl+Shift+O` (Windows/Linux) or `Cmd+Shift+O` (Mac)
 - **Right-click access** - Context menu in text fields
 - **Keyboard navigation** - Tab through interface elements
+- **Search shortcuts** - Use Escape key to clear search and exit
 - **Shortcut key warnings** - Alerts if keyboard shortcuts aren't configured
 
 ### 🎨 Modern User Interface
 - **Tabbed interface** - Clean organization with Shortcuts, Settings, and Stats tabs
 - **Visual feedback** - Success confirmations and status indicators
 - **Color-coded elements** - Professional green theme throughout
+- **Search functionality** - Real-time filtering with highlighted results
+- **Responsive design** - Clean, modern interface that's easy to navigate
+- **Custom scrollbars** - Consistent styling throughout the interface
 
 ## 🔧 Installation
 
@@ -79,6 +87,15 @@ Search on chrome web store: [Text Expander By Ofi Khan](https://chromewebstore.g
 4. **Position cursor** with `{cursor}` variable for precise placement
 5. **Click "Add Shortcut"** to save with visual confirmation
 
+### Searching & Managing Shortcuts
+
+1. **Use the search box** at the top of the Shortcuts tab 
+2. **Type to filter** shortcuts by name or expanded text
+3. **Clear search** using the X button or Escape key
+4. **View results count** to see how many shortcuts match your query
+5. **Delete individual shortcuts** with red delete buttons
+6. **Delete all shortcuts** using the "Delete All" button (requires confirmation)
+
 ### Using Advanced Variables
 Create dynamic shortcuts with variables and cursor positioning:
 ```
@@ -98,6 +115,7 @@ Result: Best regards,
 - **Settings Tab**: Configure case sensitivity and enable/disable
 - **Statistics Tab**: View usage patterns and most-used shortcuts
 - **Export/Import**: Backup your complete configuration
+- **Search Feature**: Quickly find shortcuts in large collections with real-time search
 
 ### Site-Specific Behavior
 The extension intelligently adapts to different websites:
@@ -133,6 +151,32 @@ The extension requests minimal permissions for maximum privacy:
 
 ## 📋 Changelog
 
+### Version 2.2 (Latest)
+🆕 New Features
+
+✅ **Search & Filter Shortcuts**: Real-time search functionality with highlighting
+- Search by shortcut name or expanded text
+- Clear search with X button or Escape key
+- Results counter shows matching shortcuts
+- Search highlighting for easy identification
+
+✅ **Delete All Shortcuts**: Bulk deletion with confirmation dialog
+- Removes all shortcuts and associated statistics
+- Double confirmation to prevent accidental deletion
+- Complete data cleanup in one action
+
+✅ **Real-time Statistics Updates**: Statistics now update instantly
+- Shortcut counts reflect changes immediately
+- No need to close/reopen extension for updated stats
+- Automatic synchronization across all tabs 
+
+🎨 UI/UX Improvements
+
+✅ **Red Delete Buttons**: Color-coded deletion actions for better visual hierarchy
+✅ **Enhanced Search UI**: Professional search box with icons and animations
+✅ **Improved Feedback**: Better visual confirmations and status indicators
+✅ **Responsive Interface**: Optimized layout for better user experience
+
 ### Version 2.1 (Latest)
 
 - ✅ **Enhanced settings panel** with visual toggles
@@ -163,7 +207,7 @@ The extension requests minimal permissions for maximum privacy:
 - Some complex web applications may require page refresh after installation
 - Rich text editors with custom implementations might need special handling
 - Extension works best with standard HTML input elements
-- Keyboard shortcuts require manual configuration in Chrome extensions settings
+- Keyboard shortcuts might require manual configuration in Chrome extensions settings
 - Some websites with heavy JavaScript may need initialization delays
 
 ## 📞 Support & Community
@@ -171,6 +215,15 @@ The extension requests minimal permissions for maximum privacy:
 - **Email Support**: [Contact developer](mailto:ofi.khan051@gmail.com)
 - **Developer Website**: [Ofi Khan](https://www.ofikhan.com)
 - **Chrome Web Store**: [Leave reviews and ratings](https://chromewebstore.google.com/detail/text-expander-by-ofi-khan/ofdlmmadalaoceafcekkkanigmdehbig)
+
+## 💡 Tips & Best Practices
+
+1. **Use descriptive shortcuts**: Create shortcuts that are easy to remember (e.g., addr for address)
+2. **Leverage variables**: Use variables for dynamic content like dates and time
+3. **Use the search feature**: Quickly find shortcuts in large collections using the search box
+4. **Regular backups**: Use the export feature to create regular backups of your shortcuts
+5. **Monitor statistics**: Keep an eye on your most-used shortcuts using the statistics tab
+6. **Delete unused shortcuts**: Regularly clean up your list by deleting unused shortcuts
 
 ## 📄 License
 This project is open-source and available under the [MIT License](LICENSE).
@@ -187,5 +240,6 @@ This project is open-source and available under the [MIT License](LICENSE).
 - Leaving a positive review on the Chrome Web Store
 - Sharing with colleagues and friends
 - Contributing to the project development
+- Suggesting new features via GitHub issues
 
 **Made with ❤️ for productivity enthusiasts worldwide!**

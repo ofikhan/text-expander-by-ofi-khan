@@ -32,6 +32,12 @@ button:hover {
   background-color: white;
   border-radius: 3px;
   box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+  transition: all 0.3s ease;
+}
+
+.shortcut-item.highlighted {
+  background-color: #fff3cd;
+  border: 1px solid #ffeaa7;
 }
 
 .shortcut-item strong {
@@ -54,6 +60,81 @@ button:hover {
 #import {
   width: auto;
   align-self: flex-start;
+}
+
+/* Search Functionality */
+.search-container {
+  position: relative;
+  margin: 15px 0;
+}
+
+.search-box {
+  width: 100%;
+  padding: 10px 40px 10px 15px;
+  border: 2px solid #00594c;
+  border-radius: 25px;
+  font-size: 14px;
+  outline: none;
+  transition: all 0.3s ease;
+  box-sizing: border-box;
+}
+
+.search-box:focus {
+  box-shadow: 0 0 0 3px rgba(0, 89, 76, 0.1);
+}
+
+.search-box::placeholder {
+  color: #888;
+}
+
+/* CSS-based search icon - Simple magnifying glass */
+.search-icon {
+  position: absolute;
+  right: 15px;
+  top: 45%;
+  transform: translateY(-50%);
+  color: #00594c;
+  font-size: 16px;
+  pointer-events: none;
+  width: 16px;
+  height: 16px;
+}
+
+.clear-search {
+  position: absolute;
+  right: 15px;
+  top: 50%;
+  transform: translateY(-50%);
+  background: none;
+  border: none;
+  color: #888;
+  cursor: pointer;
+  font-size: 18px;
+  padding: 0;
+  width: 20px;
+  height: 20px;
+  display: none;
+  align-items: center;
+  justify-content: center;
+}
+
+.clear-search:hover {
+  color: #00594c;
+  background: none;
+}
+
+.search-results-info {
+  font-size: 12px;
+  color: #666;
+  margin: 5px 0;
+  text-align: center;
+}
+
+.no-results {
+  text-align: center;
+  color: #666;
+  padding: 20px;
+  font-style: italic;
 }
 
 /* Tab System */
@@ -236,9 +317,9 @@ button:hover {
 
 #shortcut-list,
 #stats-list {
-  max-height: 200px; 
-  overflow-y: scroll;
-  padding-right: 5px; /* Space for scrollbar */
+  max-height: 150px; 
+  overflow-y: auto;
+  padding-right: 5px;
 }
 
 /* Custom scrollbar styling - Applied to both shortcut and stats lists */
@@ -275,4 +356,22 @@ button:hover {
 .shortcut-item button:hover,
 .delete-button:hover {
   background-color: #c82333;
+}
+
+/* Animation for search results */
+@keyframes fadeIn {
+  from { opacity: 0; transform: translateY(-5px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+.shortcut-item.search-result {
+  animation: fadeIn 0.3s ease;
+}
+
+/* Search highlighting */
+.search-highlight {
+  background: #ffeb3b;
+  padding: 1px 2px;
+  border-radius: 2px;
+  font-weight: bold;
 }

@@ -3,6 +3,9 @@ let currentSettings = {
   caseSensitive: false
 };
 
+let allShortcuts = {}; // Store all shortcuts for searching
+let filteredShortcuts = {}; // Store filtered results
+
 // Tab Management
 function initTabs() {
   const tabs = document.querySelectorAll('.tab');
@@ -26,6 +29,99 @@ function initTabs() {
       }
     });
   });
+}
+
+// Search Functionality
+function initSearch() {
+  const searchBox = document.getElementById('search-shortcuts');
+  const clearButton = document.getElementById('clear-search');
+  const searchIcon = document.getElementById('search-icon');
+  const resultsInfo = document.getElementById('search-results-info');
+
+  searchBox.addEventListener('input', (e) => {
+    const query = e.target.value.trim();
+    
+    if (query.length > 0) {
+      clearButton.style.display = 'flex';
+      searchIcon.style.display = 'none';
+      performSearch(query);
+    } else {
+      clearButton.style.display = 'none';
+      searchIcon.style.display = 'block';
+      clearSearch();
+    }
+  });
+
+  clearButton.addEventListener('click', () => {
+    searchBox.value = '';
+    clearSearch();
+    searchBox.focus();
+  });
+
+  // Handle keyboard navigation
+  searchBox.addEventListener('keydown', (e) => {
+    if (e.key === 'Escape') {
+      clearSearch();
+      searchBox.blur();
+    }
+  });
+}
+
+function performSearch(query) {
+  const searchTerm = query.toLowerCase();
+  const results = {};
+  let matchCount = 0;
+
+  // Search through shortcuts and expanded text
+  for (const [shortcut, expanded] of Object.entries(allShortcuts)) {
+    const shortcutMatch = shortcut.toLowerCase().includes(searchTerm);
+    const expandedMatch = expanded.toLowerCase().includes(searchTerm);
+    
+    if (shortcutMatch || expandedMatch) {
+      results[shortcut] = expanded;
+      matchCount++;
+    }
+  }
+
+  filteredShortcuts = results;
+  displayShortcuts(results, query);
+  updateSearchResults(matchCount, query);
+}
+
+function clearSearch() {
+  const searchBox = document.getElementById('search-shortcuts');
+  const clearButton = document.getElementById('clear-search');
+  const searchIcon = document.getElementById('search-icon');
+  
+  searchBox.value = '';
+  clearButton.style.display = 'none';
+  searchIcon.style.display = 'block';
+  
+  filteredShortcuts = allShortcuts;
+  displayShortcuts(allShortcuts);
+  updateSearchResults(0);
+}
+
+function updateSearchResults(count, query = '') {
+  const resultsInfo = document.getElementById('search-results-info');
+  
+  if (query && count > 0) {
+    resultsInfo.textContent = `Found ${count} shortcut${count === 1 ? '' : 's'} matching "${query}"`;
+    resultsInfo.style.display = 'block';
+  } else if (query && count === 0) {
+    resultsInfo.textContent = `No shortcuts found matching "${query}"`;
+    resultsInfo.style.display = 'block';
+  } else {
+    resultsInfo.textContent = '';
+    resultsInfo.style.display = 'none';
+  }
+}
+
+function highlightSearchTerm(text, searchTerm) {
+  if (!searchTerm) return text;
+  
+  const regex = new RegExp(`(${searchTerm.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')})`, 'gi');
+  return text.replace(regex, '<span class="search-highlight">$1</span>');
 }
 
 // Settings Management
@@ -59,45 +155,59 @@ function saveSettings() {
   });
 }
 
-// Shortcuts Management - Updated to be scrollable
+// Enhanced Shortcuts Management with Search Support
 function loadShortcuts() {
   const shortcutList = document.getElementById("shortcut-list");
   
   chrome.storage.local.get("shortcuts", (data) => {
-    shortcutList.innerHTML = "";
-    const shortcuts = data.shortcuts || {};
-    const shortcutEntries = Object.entries(shortcuts);
+    allShortcuts = data.shortcuts || {};
+    filteredShortcuts = allShortcuts;
     
-    // Update total shortcuts in stats (always update this regardless of count)
-    document.getElementById('total-shortcuts').textContent = shortcutEntries.length;
+    displayShortcuts(allShortcuts);
     
-    if (shortcutEntries.length === 0) {
-      shortcutList.innerHTML = '<p>No shortcuts added yet. Add your first shortcut below!</p>';
-      // Don't return early, we still need to notify background
-    } else {
-      // Create all shortcut elements
-      shortcutEntries.forEach(([shortcut, expanded]) => {
-        const div = document.createElement("div");
-        div.className = "shortcut-item";
-        
-        // Truncate long expanded text for display
-        const displayExpanded = expanded.length > 50 
-          ? expanded.substring(0, 50) + '...' 
-          : expanded;
-        
-        div.innerHTML = `
-          <div style="flex: 1;">
-            <strong>${shortcut}</strong>: ${displayExpanded.replace(/\n/g, "<br>")}
-          </div>
-          <button style="margin-left: 10px;" data-shortcut="${shortcut}" title="Delete ${shortcut}">Delete</button>
-        `;
-        
-        shortcutList.appendChild(div);
-      });
-    }
+    // Update total shortcuts in stats
+    document.getElementById('total-shortcuts').textContent = Object.keys(allShortcuts).length;
     
     // Notify background to reload shortcuts in all tabs
     chrome.runtime.sendMessage({ action: "reloadShortcuts" });
+  });
+}
+
+function displayShortcuts(shortcuts, searchTerm = '') {
+  const shortcutList = document.getElementById("shortcut-list");
+  const shortcutEntries = Object.entries(shortcuts);
+  
+  shortcutList.innerHTML = "";
+  
+  if (shortcutEntries.length === 0) {
+    if (!searchTerm) {
+      shortcutList.innerHTML = '<p>No shortcuts added yet. Add your first shortcut below!</p>';
+    }
+    return;
+  }
+
+  // Create shortcut elements with search highlighting
+  shortcutEntries.forEach(([shortcut, expanded]) => {
+    const div = document.createElement("div");
+    div.className = "shortcut-item search-result";
+    
+    // Truncate long expanded text for display
+    let displayExpanded = expanded.length > 50 
+      ? expanded.substring(0, 50) + '...' 
+      : expanded;
+    
+    // Apply search highlighting
+    const highlightedShortcut = highlightSearchTerm(shortcut, searchTerm);
+    const highlightedExpanded = highlightSearchTerm(displayExpanded.replace(/\n/g, "<br>"), searchTerm);
+    
+    div.innerHTML = `
+      <div style="flex: 1;">
+        <strong>${highlightedShortcut}</strong>: ${highlightedExpanded}
+      </div>
+      <button style="margin-left: 10px;" data-shortcut="${shortcut}" title="Delete ${shortcut}">Delete</button>
+    `;
+    
+    shortcutList.appendChild(div);
   });
 }
 
@@ -241,8 +351,9 @@ document.addEventListener('DOMContentLoaded', function() {
   const caseToggle = document.getElementById("case-toggle");
   const clearStatsButton = document.getElementById("clear-stats");
 
-  // Initialize tabs
+  // Initialize all functionality
   initTabs();
+  initSearch();
 
   // Settings Toggle Handlers
   enableToggle.addEventListener("click", () => {
@@ -290,6 +401,9 @@ document.addEventListener('DOMContentLoaded', function() {
         expandedInput.value = "";
         loadShortcuts();
         
+        // Clear search to show new shortcut
+        clearSearch();
+        
         // Show success message
         const originalText = addButton.textContent;
         addButton.textContent = "Added!";
@@ -314,10 +428,25 @@ document.addEventListener('DOMContentLoaded', function() {
     if (event.target.tagName === "BUTTON") {
       const shortcut = event.target.dataset.shortcut;
       if (confirm(`Delete shortcut "${shortcut}"?`)) {
-        chrome.storage.local.get("shortcuts", (data) => {
+        chrome.storage.local.get(["shortcuts", "expansionStats"], (data) => {
           const shortcuts = data.shortcuts || {};
+          const stats = data.expansionStats || {};
+          
+          // Get the expanded text for this shortcut before deleting
+          const expandedText = shortcuts[shortcut];
+          
+          // Delete the shortcut
           delete shortcuts[shortcut];
-          chrome.storage.local.set({ shortcuts }, loadShortcuts);
+          
+          // Delete all stats for this shortcut
+          const keysToDelete = Object.keys(stats).filter(key => key.startsWith(shortcut + ':'));
+          keysToDelete.forEach(key => delete stats[key]);
+          
+          chrome.storage.local.set({ shortcuts, expansionStats: stats }, () => {
+            loadShortcuts();
+            loadStats(); // Refresh stats display
+            clearSearch(); // Clear search input and results after deletion
+          });
         });
       }
     }
@@ -352,7 +481,8 @@ document.addEventListener('DOMContentLoaded', function() {
   deleteAllButton.addEventListener("click", () => {
     if (confirm('Warning: Deleting all shortcuts is irreversible. Please back up your shortcuts before clicking "OK."')) {
       chrome.storage.local.set({ shortcuts: {} }, () => {
-        loadShortcuts(); // This will update the total shortcuts count to 0
+        loadShortcuts();
+        clearSearch(); // Clear search when deleting all
         // Also clear the statistics
         chrome.runtime.sendMessage({ action: "clearStats" }, (response) => {
           if (response && response.success) {
