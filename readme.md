@@ -172,10 +172,10 @@ The extension requests minimal permissions for maximum privacy:
 
 🎨 UI/UX Improvements
 
-✅ **Red Delete Buttons**: Color-coded deletion actions for better visual hierarchy
-✅ **Enhanced Search UI**: Professional search box with icons and animations
-✅ **Improved Feedback**: Better visual confirmations and status indicators
-✅ **Responsive Interface**: Optimized layout for better user experience
+- ✅ **Red Delete Buttons**: Color-coded deletion actions for better visual hierarchy
+- ✅ **Enhanced Search UI**: Professional search box with icons and animations
+- ✅ **Improved Feedback**: Better visual confirmations and status indicators
+- ✅ **Responsive Interface**: Optimized layout for better user experience
 
 ### Version 2.1
 
