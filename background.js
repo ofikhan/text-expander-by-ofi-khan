@@ -1,5 +1,5 @@
 const defaultShortcuts = {
-  "ty": "Thank you",
+  "/ty": "Thank you",
   "brb": "Be right back",
   "omw": "On my way",
   "lmk": "Let me know",

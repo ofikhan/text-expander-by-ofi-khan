@@ -70,7 +70,7 @@ Search on chrome web store: [Text Expander By Ofi Khan](https://chromewebstore.g
 1. **Open the extension** by clicking the icon or using `Ctrl+Shift+O`
 2. **Try default shortcuts**: Type `ty` and press space - it expands to "Thank you"
 3. **Explore other defaults**: `brb`, `omw`, `lmk`, `sig`
-4. **Check the status indicator** - Green dot means extension is active
+4. **Check the status indicator**: Green dot means extension is active
 
 ### Adding Custom Shortcuts
 1. **Navigate to Shortcuts tab** in the popup

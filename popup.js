@@ -68,33 +68,33 @@ function loadShortcuts() {
     const shortcuts = data.shortcuts || {};
     const shortcutEntries = Object.entries(shortcuts);
     
-    if (shortcutEntries.length === 0) {
-      shortcutList.innerHTML = '<p style="color: #666; font-style: italic;">No shortcuts added yet. Add your first shortcut below!</p>';
-      return;
-    }
-    
-    // Create all shortcut elements
-    shortcutEntries.forEach(([shortcut, expanded]) => {
-      const div = document.createElement("div");
-      div.className = "shortcut-item";
-      
-      // Truncate long expanded text for display
-      const displayExpanded = expanded.length > 50 
-        ? expanded.substring(0, 50) + '...' 
-        : expanded;
-      
-      div.innerHTML = `
-        <div style="flex: 1;">
-          <strong>${shortcut}</strong>: ${displayExpanded.replace(/\n/g, "<br>")}
-        </div>
-        <button style="margin-left: 10px;" data-shortcut="${shortcut}" title="Delete ${shortcut}">Delete</button>
-      `;
-      
-      shortcutList.appendChild(div);
-    });
-    
-    // Update total shortcuts in stats
+    // Update total shortcuts in stats (always update this regardless of count)
     document.getElementById('total-shortcuts').textContent = shortcutEntries.length;
+    
+    if (shortcutEntries.length === 0) {
+      shortcutList.innerHTML = '<p>No shortcuts added yet. Add your first shortcut below!</p>';
+      // Don't return early, we still need to notify background
+    } else {
+      // Create all shortcut elements
+      shortcutEntries.forEach(([shortcut, expanded]) => {
+        const div = document.createElement("div");
+        div.className = "shortcut-item";
+        
+        // Truncate long expanded text for display
+        const displayExpanded = expanded.length > 50 
+          ? expanded.substring(0, 50) + '...' 
+          : expanded;
+        
+        div.innerHTML = `
+          <div style="flex: 1;">
+            <strong>${shortcut}</strong>: ${displayExpanded.replace(/\n/g, "<br>")}
+          </div>
+          <button style="margin-left: 10px;" data-shortcut="${shortcut}" title="Delete ${shortcut}">Delete</button>
+        `;
+        
+        shortcutList.appendChild(div);
+      });
+    }
     
     // Notify background to reload shortcuts in all tabs
     chrome.runtime.sendMessage({ action: "reloadShortcuts" });
@@ -343,6 +343,25 @@ document.addEventListener('DOMContentLoaded', function() {
           loadStats();
           alert('Statistics cleared successfully!');
         }
+      });
+    }
+  });
+
+  // Delete all shortcuts
+  const deleteAllButton = document.getElementById("delete-all");
+  deleteAllButton.addEventListener("click", () => {
+    if (confirm('Warning: Deleting all shortcuts is irreversible. Please back up your shortcuts before clicking "OK."')) {
+      chrome.storage.local.set({ shortcuts: {} }, () => {
+        loadShortcuts(); // This will update the total shortcuts count to 0
+        // Also clear the statistics
+        chrome.runtime.sendMessage({ action: "clearStats" }, (response) => {
+          if (response && response.success) {
+            loadStats();
+            alert('All shortcuts have been deleted and statistics cleared.');
+          } else {
+            alert('All shortcuts have been deleted.');
+          }
+        });
       });
     }
   });

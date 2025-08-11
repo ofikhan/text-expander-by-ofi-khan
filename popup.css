@@ -45,6 +45,12 @@ button:hover {
   margin: 10px 0px;
 }
 
+.button-shortcut {
+  display: flex;
+  gap: 10px;
+  margin: 10px 0px;
+}
+
 #import {
   width: auto;
   align-self: flex-start;
@@ -258,11 +264,15 @@ button:hover {
   background: #004238;
 }
 
-/* Clear stats button styling */
-#clear-stats {
+/* Delete buttons styling */
+#clear-stats,
+.shortcut-item button,
+.delete-button {
   background-color: #dc3545;
 }
 
-#clear-stats:hover {
+#clear-stats:hover,
+.shortcut-item button:hover,
+.delete-button:hover {
   background-color: #c82333;
 }
