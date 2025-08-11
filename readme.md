@@ -177,7 +177,7 @@ The extension requests minimal permissions for maximum privacy:
 ✅ **Improved Feedback**: Better visual confirmations and status indicators
 ✅ **Responsive Interface**: Optimized layout for better user experience
 
-### Version 2.1 (Latest)
+### Version 2.1
 
 - ✅ **Enhanced settings panel** with visual toggles
 - ✅ **Complete data backup system** with validation
@@ -217,7 +217,6 @@ The extension requests minimal permissions for maximum privacy:
 - **Chrome Web Store**: [Leave reviews and ratings](https://chromewebstore.google.com/detail/text-expander-by-ofi-khan/ofdlmmadalaoceafcekkkanigmdehbig)
 
 ## 💡 Tips & Best Practices
-
 1. **Use descriptive shortcuts**: Create shortcuts that are easy to remember (e.g., addr for address)
 2. **Leverage variables**: Use variables for dynamic content like dates and time
 3. **Use the search feature**: Quickly find shortcuts in large collections using the search box
