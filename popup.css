@@ -9,6 +9,8 @@ h1, h2, .import-label {
   font-weight: bold;
   font-size: 16px;
   color: #00594c;
+  text-align: center;
+  margin: 0px 5px 8px;
 }
 
 button {
@@ -65,25 +67,41 @@ button:hover {
 /* Search Functionality */
 .search-container {
   position: relative;
-  margin: 15px 0;
+  margin: 12px 0;
 }
 
 .search-box {
   width: 100%;
-  padding: 10px 40px 10px 15px;
-  border: 2px solid #00594c;
-  border-radius: 25px;
+  padding: 8px;
+  border: 1px solid #00594c;
+  border-radius: 3px;
   font-size: 14px;
   outline: none;
   transition: all 0.3s ease;
   box-sizing: border-box;
 }
 
-.search-box:focus {
+#shortcut, 
+#expanded  {
+  border: 1px solid #00594c;
+  padding: 8px;
+}
+
+.search-box:focus, 
+#shortcut:focus-visible,
+#expanded:focus-visible {
+  outline: 1px solid #00594c;
+}
+
+.search-box:focus,
+#shortcut:focus,
+#expanded:focus  {
   box-shadow: 0 0 0 3px rgba(0, 89, 76, 0.1);
 }
 
-.search-box::placeholder {
+.search-box::placeholder,
+#shortcut::placeholder,
+#expanded::placeholder {
   color: #888;
 }
 
@@ -193,6 +211,7 @@ button:hover {
   align-items: center;
   margin: 8px 0;
   color: #00594c;
+  font-size: 14px;
 }
 
 /* Toggle Switch */
@@ -312,12 +331,12 @@ button:hover {
 
 /* Scrollable shortcut list */
 #shortcut-list-container {
-  margin-bottom: 15px;
+  margin-bottom: 10px;
 }
 
 #shortcut-list,
 #stats-list {
-  max-height: 150px; 
+  max-height: 130px; 
   overflow-y: auto;
   padding-right: 5px;
 }

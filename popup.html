@@ -2,9 +2,14 @@
 <html>
 <head>
   <title>Text Expander By Ofi Khan</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <link rel="stylesheet" href="popup.css">
 </head>
 <body>
+  <h1>
+    <span id="status-indicator" class="status-indicator status-enabled"></span>
+    Text Expander By Ofi Khan
+  </h1>
   <div class="tab-container">
     <div class="tab active" data-tab="shortcuts">Shortcuts</div>
     <div class="tab" data-tab="settings">Settings</div>
@@ -13,10 +18,6 @@
 
   <!-- Shortcuts Tab -->
   <div id="shortcuts-tab" class="tab-content active">
-    <h1>
-      <span id="status-indicator" class="status-indicator status-enabled"></span>
-      Text Expander Shortcuts
-    </h1>
     
     <!-- Search Container -->
     <div class="search-container">
@@ -52,16 +53,14 @@
       <textarea id="expanded" placeholder="Expanded text (e.g., as soon as possible)" aria-label="Expanded text input"></textarea>
     </div>
     
-    <div class="button-shortcut">
+    <div class="button-group">
       <button id="add">Add Shortcut</button>
       <button id="delete-all" class="delete-button">Delete All</button>
     </div>
   </div>
 
   <!-- Settings Tab -->
-  <div id="settings-tab" class="tab-content">
-    <h1>Settings</h1>
-    
+  <div id="settings-tab" class="tab-content">    
     <div class="settings-section">
       <div class="settings-row">
         <label>Enable Text Expander</label>
@@ -86,9 +85,7 @@
   </div>
 
   <!-- Stats Tab -->
-  <div id="stats-tab" class="tab-content">
-    <h1>Usage Statistics</h1>
-    
+  <div id="stats-tab" class="tab-content">    
     <div class="stats-section">
       <h3>Most Used Shortcuts</h3>
       <div id="stats-list">

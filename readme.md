@@ -40,9 +40,9 @@ Support for dynamic content insertion with cursor positioning:
 ### 🎛️ Enhanced Settings & Controls
 - **Enable/Disable toggle** - Turn the extension on/off without uninstalling
 - **Case sensitivity control** - Match shortcuts exactly or ignore case
-- **Visual status indicators** - Clear indication of extension status
+- **Visual status indicators** - Clear indication of extension status with improved positioning
 - **Real-time settings sync** - Changes apply immediately across all tabs
-- **Tabbed interface** - Organized settings, shortcuts, and statistics
+- **Clean tabbed interface** - Streamlined navigation without redundant titles
 
 ### 💾 Complete Data Management
 - **Enhanced Export/Import** - Backup shortcuts, settings, and statistics in JSON format
@@ -60,12 +60,14 @@ Support for dynamic content insertion with cursor positioning:
 - **Shortcut key warnings** - Alerts if keyboard shortcuts aren't configured
 
 ### 🎨 Modern User Interface
-- **Tabbed interface** - Clean organization with Shortcuts, Settings, and Stats tabs
+- **Consistent design system** - Universal borders, colors, and typography
+- **Optimized layout** - Full-width flex layouts for better space utilization
 - **Visual feedback** - Success confirmations and status indicators
 - **Color-coded elements** - Professional green theme throughout
 - **Search functionality** - Real-time filtering with highlighted results
 - **Responsive design** - Clean, modern interface that's easy to navigate
 - **Custom scrollbars** - Consistent styling throughout the interface
+- **Improved accessibility** - Better focus states and keyboard navigation
 
 ## 🔧 Installation
 
@@ -151,8 +153,27 @@ The extension requests minimal permissions for maximum privacy:
 
 ## 📋 Changelog
 
-### Version 2.2 (Latest)
-🆕 New Features
+### Version 2.3 (Latest)
+🆕 **Major UX/UI Improvements**
+
+✅ **Enhanced User Interface Design**
+- **Universal design system**: Consistent borders, colors, typography, and spacing across all elements
+- **Improved status indicator**: Repositioned extension on/off indicator to the top for better visibility
+- **Cleaner tab interface**: Removed redundant "Settings" and "Usage Statistics" titles from tab content
+- **Full-width button layout**: Add Shortcut and Delete All buttons now use optimized flex layouts
+
+🔧 **Technical Enhancements**
+- **Fixed scrollbar issues**: Resolved body scrollbar display problems for smoother navigation
+- **Text selection fix**: Resolved CMD+A/CTRL+A selection issues after text expansion
+- **Improved accessibility**: Better focus states and keyboard navigation throughout
+
+🎨 **Visual Polish**
+- **Enhanced typography**: Improved font sizes and weights for better readability
+- **Better spacing**: Optimized margins and padding for professional appearance
+- **Responsive elements**: All interface components adapt better to different screen sizes
+
+### Version 2.2
+🆕 **New Features**
 
 ✅ **Search & Filter Shortcuts**: Real-time search functionality with highlighting
 - Search by shortcut name or expanded text
@@ -170,8 +191,7 @@ The extension requests minimal permissions for maximum privacy:
 - No need to close/reopen extension for updated stats
 - Automatic synchronization across all tabs 
 
-🎨 UI/UX Improvements
-
+🎨 **UI/UX Improvements**
 - ✅ **Red Delete Buttons**: Color-coded deletion actions for better visual hierarchy
 - ✅ **Enhanced Search UI**: Professional search box with icons and animations
 - ✅ **Improved Feedback**: Better visual confirmations and status indicators
