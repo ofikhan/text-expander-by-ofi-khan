@@ -79,6 +79,9 @@ const siteRules = {
   },
   'stackoverflow.com': {
     includeSelectors: ['#wmd-input', '.s-textarea']
+  },
+  'joomshaper.com': {
+    disableCustomSelectAll: true  // Disable custom CMD/CTRL+A handling for JoomShaper
   }
 };
 
@@ -472,6 +475,19 @@ function globalKeyDownListener(event) {
   const target = event.target;
   // Fix select all: ensure full selection when meta/ctrl+A is pressed
   if ((event.metaKey || event.ctrlKey) && event.key && event.key.toLowerCase() === 'a') {
+    // Check if we should skip custom handling for this site
+    const hostname = window.location.hostname;
+    
+    // Check if the hostname contains joomshaper.com (to handle subdomains)
+    if (hostname.includes('joomshaper.com')) {
+      return; // Let the browser handle CMD/CTRL+A natively for any joomshaper.com domain
+    }
+    
+    const rules = siteRules[hostname];
+    if (rules && rules.disableCustomSelectAll) {
+      return; // Let the browser handle CMD/CTRL+A natively
+    }
+    
     // Only act on elements that support selection
     if (target.tagName === 'INPUT' || target.tagName === 'TEXTAREA') {
       event.preventDefault();

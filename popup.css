@@ -5,7 +5,7 @@ body {
   background-color: #f5f6f5;
 }
 
-h1, h2, .import-label {
+h1, h2 {
   font-weight: bold;
   font-size: 16px;
   color: #00594c;
@@ -197,7 +197,7 @@ button:hover {
 }
 
 /* Settings Section */
-.settings-section {
+.settings-section, .button-file {
   background: white;
   padding: 15px;
   margin: 10px 0;
@@ -243,6 +243,13 @@ button:hover {
 
 .toggle-switch.active::after {
   left: 28px;
+}
+
+.import-label {
+  font-weight: bold;
+  font-size: 14px;
+  color: #00594c;
+  margin: 0px;
 }
 
 /* Statistics Section */
