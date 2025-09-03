@@ -76,6 +76,7 @@ button:hover {
   border: 1px solid #00594c;
   border-radius: 3px;
   font-size: 14px;
+  font-family: Arial, sans-serif;
   outline: none;
   transition: all 0.3s ease;
   box-sizing: border-box;
@@ -85,6 +86,8 @@ button:hover {
 #expanded  {
   border: 1px solid #00594c;
   padding: 8px;
+  font-size: 14px;
+  font-family: Arial, sans-serif;
 }
 
 .search-box:focus, 
@@ -171,6 +174,7 @@ button:hover {
   transition: background 0.3s;
   color: #00594c;
   font-weight: bold;
+  font-size: 14px;
 }
 
 .tab:first-child {
@@ -265,6 +269,7 @@ button:hover {
   color: #00594c;
   margin-top: 0;
   font-size: 14px;
+  margin: 0px;
 }
 
 .stats-item {
@@ -290,7 +295,7 @@ button:hover {
 .variable-help h4 {
   margin: 0 0 5px 0;
   color: #00594c;
-  font-size: 12px;
+  font-size: 14px;
 }
 
 .variable-list {
@@ -343,7 +348,7 @@ button:hover {
 
 #shortcut-list,
 #stats-list {
-  max-height: 130px; 
+  max-height: 145px; 
   overflow-y: auto;
   padding-right: 5px;
 }
