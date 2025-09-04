@@ -88,6 +88,7 @@ button:hover {
   padding: 8px;
   font-size: 14px;
   font-family: Arial, sans-serif;
+  border-radius: 3px;
 }
 
 .search-box:focus, 
