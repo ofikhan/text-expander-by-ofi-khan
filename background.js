@@ -48,7 +48,7 @@ chrome.runtime.onInstalled.addListener(() => {
   });
 });
 
-chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
+chrome.runtime.onMessage.addListener((message, _sender, sendResponse) => {
   if (message.action === "reloadShortcuts") {
     chrome.storage.local.get(["shortcuts", "expanderEnabled", "caseSensitive"], (data) => {
       const shortcuts = data.shortcuts || {};
@@ -148,7 +148,7 @@ chrome.runtime.onInstalled.addListener(() => {
   });
 });
 
-chrome.contextMenus.onClicked.addListener((info, tab) => {
+chrome.contextMenus.onClicked.addListener((info) => {
   if (info.menuItemId === "open-expander") {
     chrome.action.openPopup();
   }

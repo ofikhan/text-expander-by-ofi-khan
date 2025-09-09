@@ -296,7 +296,6 @@ function importData(file) {
       if (confirm(message)) {
         chrome.runtime.sendMessage({ action: "importData", data }, (response) => {
           if (response && response.success) {
-            alert('Data imported successfully!');
             loadShortcuts();
             loadSettings();
             loadStats();
@@ -464,34 +463,44 @@ document.addEventListener('DOMContentLoaded', function() {
     }
   });
 
-  // Clear statistics
+  // Clear statistics 
   clearStatsButton.addEventListener("click", () => {
-    if (confirm('This will permanently delete all usage statistics. Continue?')) {
-      chrome.runtime.sendMessage({ action: "clearStats" }, (response) => {
-        if (response && response.success) {
-          loadStats();
-          alert('Statistics cleared successfully!');
+    chrome.runtime.sendMessage({ action: "getStats" }, (response) => {
+      if (response && response.stats) {
+        const stats = response.stats;
+        
+        // Check if there are any statistics to clear
+        if (Object.keys(stats).length === 0) {
+          alert('No stats to delete.');
+          return;
         }
-      });
-    }
+        
+        if (confirm('This will permanently delete all usage statistics. Continue?')) {
+          chrome.runtime.sendMessage({ action: "clearStats" }, (response) => {
+            if (response && response.success) {
+              loadStats();
+            }
+          });
+        }
+      }
+    });
   });
 
-  // Delete all shortcuts
+  // Delete all shortcuts - FIXED VERSION
   const deleteAllButton = document.getElementById("delete-all");
   deleteAllButton.addEventListener("click", () => {
+    // Check if there are any shortcuts to delete
+    if (Object.keys(allShortcuts).length === 0) {
+      alert('No shortcuts to delete.');
+      return;
+    }
+    
     if (confirm('Warning: Deleting all shortcuts is irreversible. Please back up your shortcuts before clicking "OK."')) {
-      chrome.storage.local.set({ shortcuts: {} }, () => {
+      // Clear both shortcuts and stats in one operation
+      chrome.storage.local.set({ shortcuts: {}, expansionStats: {} }, () => {
         loadShortcuts();
+        loadStats();
         clearSearch(); // Clear search when deleting all
-        // Also clear the statistics
-        chrome.runtime.sendMessage({ action: "clearStats" }, (response) => {
-          if (response && response.success) {
-            loadStats();
-            alert('All shortcuts have been deleted and statistics cleared.');
-          } else {
-            alert('All shortcuts have been deleted.');
-          }
-        });
       });
     }
   });

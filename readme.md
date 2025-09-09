@@ -153,7 +153,10 @@ The extension requests minimal permissions for maximum privacy:
 
 ## 📋 Changelog
 
+## 📋 Changelog
+
 ### Version 2.3 (Latest)
+
 🆕 **Major UX/UI Improvements**
 
 ✅ **Enhanced User Interface Design**
@@ -162,9 +165,17 @@ The extension requests minimal permissions for maximum privacy:
 - **Cleaner tab interface**: Removed redundant "Settings" and "Usage Statistics" titles from tab content
 - **Full-width button layout**: Add Shortcut and Delete All buttons now use optimized flex layouts
 
+✅ **Smart Action Handling**
+- **Delete All validation**: Checks if shortcuts exist before showing confirmation - alerts "No shortcuts to delete" if empty
+- **Clear Stats validation**: Checks if statistics exist before showing confirmation - alerts "No statistics to delete" if empty
+- **Streamlined confirmations**: Removed redundant second confirmation alerts for cleaner user experience
+- **Import optimization**: Simplified import process with single confirmation dialog
+
 🔧 **Technical Enhancements**
 - **Fixed scrollbar issues**: Resolved body scrollbar display problems for smoother navigation
 - **Text selection fix**: Resolved CMD+A/CTRL+A selection issues after text expansion
+- **Facebook editor compatibility**: Fixed text expansion issues on Facebook posts, comments, and messages
+- **WhatsApp Web compatibility**: Ensured proper text expansion and sending on WhatsApp Web
 - **Improved accessibility**: Better focus states and keyboard navigation throughout
 
 🎨 **Visual Polish**

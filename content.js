@@ -2,24 +2,21 @@ let shortcuts = {};
 let expanderEnabled = true;
 let caseSensitive = false;
 let lastExpansion = null;
+let facebookExpansionMap = new WeakMap(); // Track expansions for Facebook elements
+let whatsappExpansionMap = new WeakMap(); // Track expansions for WhatsApp elements
 
 // Load all settings
 function loadSettings() {
-  // Load shortcuts and settings from storage.  If the expander is disabled,
-  // expansions will be no-ops.  We intentionally avoid attaching event
-  // listeners to individual elements here; instead we register global
-  // listeners (see below) that handle any text input or contenteditable
-  // element.  This avoids missing dynamically created inputs and works
-  // across a wider range of editors.
   chrome.storage.local.get(["shortcuts", "expanderEnabled", "caseSensitive"], (data) => {
     shortcuts = data.shortcuts || {};
     expanderEnabled = data.expanderEnabled !== false;
     caseSensitive = data.caseSensitive || false;
+    applyListeners();
   });
 }
 
 function getTextInputElements() {
-  return document.querySelectorAll(`
+  const selectors = `
     input[type='text'], 
     input[type='search'], 
     input[type='email'], 
@@ -31,14 +28,63 @@ function getTextInputElements() {
     [contenteditable=''],
     .ql-editor,
     .ace_text-input,
-    .CodeMirror textarea
-  `);
+    .CodeMirror textarea,
+    /* Facebook-specific selectors */
+    div[data-contents="true"],
+    div[role="textbox"],
+    div[aria-label*="message"],
+    div[aria-label*="comment"],
+    div[aria-label*="post"],
+    div[aria-label*="write"],
+    .notranslate,
+    ._1mf._1mj,
+    /* Additional common Facebook classes */
+    ._5rpu,
+    ._1p1t,
+    ._1osq,
+    ._1osr,
+    ._1ost,
+    ._1p1v,
+    /* WhatsApp Web selectors */
+    [contenteditable="true"][data-tab],
+    [contenteditable="true"][title="Type a message"],
+    ._2S1VP
+  `;
+  
+  return document.querySelectorAll(selectors);
 }
 
-// `applyListeners` is retained for backwards compatibility but does nothing.
-// Global listeners are registered at the bottom of this file instead.
 function applyListeners() {
-  // No-op: event handlers are attached globally via document listeners.
+  getTextInputElements().forEach((input) => {
+    if (!input.dataset.expanderListener) {
+      if (input.contentEditable === 'true' || 
+          input.matches('div[role="textbox"], div[data-contents="true"]') ||
+          input.getAttribute('aria-label')?.includes('message') ||
+          input.getAttribute('aria-label')?.includes('comment') ||
+          input.getAttribute('aria-label')?.includes('post') ||
+          input.matches('[contenteditable="true"][data-tab], [contenteditable="true"][title="Type a message"]')) {
+        input.addEventListener("input", handleContentEditableInput);
+        input.addEventListener("keydown", handleContentEditableKeyDown);
+        
+        // Add platform-specific event listeners
+        if (window.location.hostname.includes('facebook.com') || 
+            window.location.hostname.includes('messenger.com')) {
+          input.addEventListener("blur", handleFacebookBlur);
+          input.addEventListener("focus", handleFacebookFocus);
+          monitorFacebookActions(input);
+        }
+        else if (window.location.hostname.includes('web.whatsapp.com')) {
+          input.addEventListener("blur", handleWhatsAppBlur);
+          input.addEventListener("focus", handleWhatsAppFocus);
+          monitorWhatsAppActions(input);
+        }
+      } else {
+        input.addEventListener("input", handleInput);
+        input.addEventListener("keydown", handleKeyDown);
+      }
+      input.dataset.expanderListener = "true";
+    }
+  });
 }
 
 // Enhanced variable expansion
@@ -53,7 +99,6 @@ function expandVariables(text) {
     .replace(/\{month\}/g, (now.getMonth() + 1).toString().padStart(2, '0'))
     .replace(/\{day\}/g, now.getDate().toString().padStart(2, '0'))
     .replace(/\{timestamp\}/g, now.getTime().toString());
-    // Note: {cursor} is handled separately in the expansion functions
 }
 
 // Enhanced matching function
@@ -80,8 +125,17 @@ const siteRules = {
   'stackoverflow.com': {
     includeSelectors: ['#wmd-input', '.s-textarea']
   },
-  'joomshaper.com': {
-    disableCustomSelectAll: true  // Disable custom CMD/CTRL+A handling for JoomShaper
+  'facebook.com': {
+    includeSelectors: ['div[role="textbox"]', 'div[data-contents="true"]', 'div[aria-label*="message"]']
+  },
+  'messenger.com': {
+    includeSelectors: ['div[role="textbox"]', 'div[aria-label*="message"]']
+  },
+  'www.facebook.com': {
+    includeSelectors: ['div[role="textbox"]', 'div[data-contents="true"]', 'div[aria-label*="message"]']
+  },
+  'web.whatsapp.com': {
+    includeSelectors: ['[contenteditable="true"][data-tab]', '[contenteditable="true"][title="Type a message"]']
   }
 };
 
@@ -121,6 +175,115 @@ function trackExpansion(shortcut, expanded) {
   });
 }
 
+// Facebook-specific handlers
+function handleFacebookBlur(event) {
+  const element = event.target;
+  if (facebookExpansionMap.has(element)) {
+    const { originalText, expandedText } = facebookExpansionMap.get(element);
+    if (element.textContent === originalText) {
+      element.textContent = expandedText;
+      facebookExpansionMap.delete(element);
+    }
+  }
+}
+
+function handleFacebookFocus(event) {
+  const element = event.target;
+  if (facebookExpansionMap.has(element)) {
+    facebookExpansionMap.delete(element);
+  }
+}
+
+function monitorFacebookActions(inputElement) {
+  const container = inputElement.closest('form, [role="dialog"], [data-pagelet]') || document;
+  
+  const sendButtons = container.querySelectorAll('[aria-label*="Send"], [data-testid*="send"], div[role="button"][tabindex="0"]');
+  
+  sendButtons.forEach(button => {
+    if (!button.dataset.expanderListener) {
+      button.addEventListener('click', () => {
+        if (facebookExpansionMap.has(inputElement)) {
+          const { expandedText } = facebookExpansionMap.get(inputElement);
+          inputElement.textContent = expandedText;
+          facebookExpansionMap.delete(inputElement);
+          inputElement.dispatchEvent(new Event('input', { bubbles: true }));
+        }
+      });
+      button.dataset.expanderListener = "true";
+    }
+  });
+  
+  inputElement.addEventListener('keydown', (event) => {
+    if (event.key === 'Enter' && !event.shiftKey) {
+      if (facebookExpansionMap.has(inputElement)) {
+        const { expandedText } = facebookExpansionMap.get(inputElement);
+        inputElement.textContent = expandedText;
+        facebookExpansionMap.delete(inputElement);
+        setTimeout(() => {
+          inputElement.dispatchEvent(new Event('input', { bubbles: true }));
+        }, 50);
+      }
+    }
+  });
+}
+
+// WhatsApp-specific handlers
+function handleWhatsAppBlur(event) {
+  const element = event.target;
+  if (whatsappExpansionMap.has(element)) {
+    const { originalText, expandedText } = whatsappExpansionMap.get(element);
+    if (element.textContent === originalText) {
+      element.textContent = expandedText;
+      whatsappExpansionMap.delete(element);
+    }
+  }
+}
+
+function handleWhatsAppFocus(event) {
+  const element = event.target;
+  if (whatsappExpansionMap.has(element)) {
+    whatsappExpansionMap.delete(element);
+  }
+}
+
+function monitorWhatsAppActions(inputElement) {
+  // WhatsApp Web uses a different structure - look for send button near the input
+  const container = inputElement.closest('[data-testid="conversation-panel-wrapper"]') || 
+                    inputElement.closest('.two') || 
+                    document;
+  
+  // WhatsApp send button selectors
+  const sendButtons = container.querySelectorAll('[data-testid="send"], [data-icon="send"], button[aria-label*="Send"]');
+  
+  sendButtons.forEach(button => {
+    if (!button.dataset.expanderListener) {
+      button.addEventListener('click', () => {
+        if (whatsappExpansionMap.has(inputElement)) {
+          const { expandedText } = whatsappExpansionMap.get(inputElement);
+          inputElement.textContent = expandedText;
+          whatsappExpansionMap.delete(inputElement);
+          inputElement.dispatchEvent(new Event('input', { bubbles: true }));
+        }
+      });
+      button.dataset.expanderListener = "true";
+    }
+  });
+  
+  // WhatsApp also uses Enter key to send
+  inputElement.addEventListener('keydown', (event) => {
+    if (event.key === 'Enter' && !event.shiftKey) {
+      if (whatsappExpansionMap.has(inputElement)) {
+        const { expandedText } = whatsappExpansionMap.get(inputElement);
+        inputElement.textContent = expandedText;
+        whatsappExpansionMap.delete(inputElement);
+        setTimeout(() => {
+          inputElement.dispatchEvent(new Event('input', { bubbles: true }));
+        }, 50);
+      }
+    }
+  });
+}
+
 function handleInput(event) {
   const input = event.target;
   if (!shouldExpandOnSite(input)) return;
@@ -139,7 +302,6 @@ function handleInput(event) {
       const beforeShortcut = textBeforeCursor.slice(0, -lastWord.length);
       const afterCursor = text.substring(cursorPos);
       
-      // Save for undo
       lastExpansion = {
         element: input,
         originalText: text,
@@ -147,21 +309,18 @@ function handleInput(event) {
         timestamp: Date.now()
       };
       
-      // Handle cursor positioning
       if (expandedText.includes('{cursor}')) {
         const cursorIndex = expandedText.indexOf('{cursor}');
         const finalExpandedText = expandedText.replace('{cursor}', '');
         const newText = beforeShortcut + finalExpandedText + afterCursor;
         input.value = newText;
         
-        // Set cursor position
         const newCursorPos = beforeShortcut.length + cursorIndex;
         input.setSelectionRange(newCursorPos, newCursorPos);
       } else {
         const newText = beforeShortcut + expandedText + afterCursor;
         input.value = newText;
         
-        // Set cursor at end of expanded text
         const newCursorPos = beforeShortcut.length + expandedText.length;
         input.setSelectionRange(newCursorPos, newCursorPos);
       }
@@ -193,21 +352,18 @@ function handleKeyDown(event) {
         const afterCursor = text.substring(cursorPos);
         const triggerChar = event.key === 'Tab' ? '\t' : (event.key === 'Enter' ? '\n' : ' ');
         
-        // Handle cursor positioning
         if (expandedText.includes('{cursor}')) {
           const cursorIndex = expandedText.indexOf('{cursor}');
           const finalExpandedText = expandedText.replace('{cursor}', '');
           const newText = beforeShortcut + finalExpandedText + triggerChar + afterCursor;
           input.value = newText;
           
-          // Set cursor position (before the trigger character)
           const newCursorPos = beforeShortcut.length + cursorIndex;
           input.setSelectionRange(newCursorPos, newCursorPos);
         } else {
           const newText = beforeShortcut + expandedText + triggerChar + afterCursor;
           input.value = newText;
           
-          // Set cursor after trigger character
           const newCursorPos = beforeShortcut.length + expandedText.length + 1;
           input.setSelectionRange(newCursorPos, newCursorPos);
         }
@@ -245,14 +401,32 @@ function handleContentEditableInput(event) {
       const beforeShortcut = textBeforeCursor.slice(0, -lastWord.length);
       const afterCursor = text.substring(cursorPos);
       
-      // Handle cursor positioning for contenteditable
+      const isFacebook = window.location.hostname.includes('facebook.com') || 
+                         window.location.hostname.includes('messenger.com');
+      
+      const isWhatsApp = window.location.hostname.includes('web.whatsapp.com');
+      
+      if (isFacebook) {
+        facebookExpansionMap.set(element, {
+          originalText: text,
+          expandedText: beforeShortcut + expandedText + afterCursor,
+          shortcut: match.shortcut
+        });
+      }
+      else if (isWhatsApp) {
+        whatsappExpansionMap.set(element, {
+          originalText: text,
+          expandedText: beforeShortcut + expandedText + afterCursor,
+          shortcut: match.shortcut
+        });
+      }
+      
       if (expandedText.includes('{cursor}')) {
         const cursorIndex = expandedText.indexOf('{cursor}');
         const finalExpandedText = expandedText.replace('{cursor}', '');
         const newText = beforeShortcut + finalExpandedText + afterCursor;
         textNode.textContent = newText;
         
-        // Set cursor position
         const newCursorPos = beforeShortcut.length + cursorIndex;
         range.setStart(textNode, newCursorPos);
         range.setEnd(textNode, newCursorPos);
@@ -260,7 +434,6 @@ function handleContentEditableInput(event) {
         const newText = beforeShortcut + expandedText + afterCursor;
         textNode.textContent = newText;
         
-        // Set cursor at end of expanded text
         const newCursorPos = beforeShortcut.length + expandedText.length;
         range.setStart(textNode, newCursorPos);
         range.setEnd(textNode, newCursorPos);
@@ -268,6 +441,13 @@ function handleContentEditableInput(event) {
       
       selection.removeAllRanges();
       selection.addRange(range);
+      
+      if (isFacebook || isWhatsApp) {
+        element.dispatchEvent(new Event('change', { bubbles: true }));
+        setTimeout(() => {
+          element.dispatchEvent(new Event('input', { bubbles: true }));
+        }, 10);
+      }
       
       trackExpansion(match.shortcut, match.expanded);
     }
@@ -305,14 +485,32 @@ function handleContentEditableKeyDown(event) {
         const afterCursor = text.substring(cursorPos);
         const triggerChar = event.key === 'Tab' ? '\t' : (event.key === 'Enter' ? '\n' : ' ');
         
-        // Handle cursor positioning for contenteditable
+        const isFacebook = window.location.hostname.includes('facebook.com') || 
+                           window.location.hostname.includes('messenger.com');
+        
+        const isWhatsApp = window.location.hostname.includes('web.whatsapp.com');
+        
+        if (isFacebook) {
+          facebookExpansionMap.set(element, {
+            originalText: text,
+            expandedText: beforeShortcut + expandedText + triggerChar + afterCursor,
+            shortcut: match.shortcut
+          });
+        }
+        else if (isWhatsApp) {
+          whatsappExpansionMap.set(element, {
+            originalText: text,
+            expandedText: beforeShortcut + expandedText + triggerChar + afterCursor,
+            shortcut: match.shortcut
+          });
+        }
+        
         if (expandedText.includes('{cursor}')) {
           const cursorIndex = expandedText.indexOf('{cursor}');
           const finalExpandedText = expandedText.replace('{cursor}', '');
           const newText = beforeShortcut + finalExpandedText + triggerChar + afterCursor;
           textNode.textContent = newText;
           
-          // Set cursor position (before the trigger character)
           const newCursorPos = beforeShortcut.length + cursorIndex;
           range.setStart(textNode, newCursorPos);
           range.setEnd(textNode, newCursorPos);
@@ -320,7 +518,6 @@ function handleContentEditableKeyDown(event) {
           const newText = beforeShortcut + expandedText + triggerChar + afterCursor;
           textNode.textContent = newText;
           
-          // Set cursor after trigger character
           const newCursorPos = beforeShortcut.length + expandedText.length + 1;
           range.setStart(textNode, newCursorPos);
           range.setEnd(textNode, newCursorPos);
@@ -329,12 +526,80 @@ function handleContentEditableKeyDown(event) {
         selection.removeAllRanges();
         selection.addRange(range);
         
+        if (isFacebook || isWhatsApp) {
+          element.dispatchEvent(new Event('change', { bubbles: true }));
+          setTimeout(() => {
+            element.dispatchEvent(new Event('input', { bubbles: true }));
+          }, 10);
+        }
+        
         trackExpansion(match.shortcut, match.expanded);
       }
     } catch (error) {
       console.log("Error handling contenteditable keydown:", error);
     }
   }
+}
+
+function handleFacebookEditors() {
+  if (!window.location.hostname.includes('facebook.com') && 
+      !window.location.hostname.includes('messenger.com')) {
+    return;
+  }
+  
+  const commentBoxes = document.querySelectorAll('div[aria-label*="comment"], div[aria-label*="Comment"]');
+  commentBoxes.forEach(box => {
+    if (!box.dataset.expanderListener) {
+      box.addEventListener("input", handleContentEditableInput);
+      box.addEventListener("keydown", handleContentEditableKeyDown);
+      box.addEventListener("blur", handleFacebookBlur);
+      box.addEventListener("focus", handleFacebookFocus);
+      monitorFacebookActions(box);
+      box.dataset.expanderListener = "true";
+    }
+  });
+  
+  const postComposers = document.querySelectorAll('div[aria-label*="post"], div[aria-label*="Post"], div[aria-label*="create post"]');
+  postComposers.forEach(composer => {
+    if (!composer.dataset.expanderListener) {
+      composer.addEventListener("input", handleContentEditableInput);
+      composer.addEventListener("keydown", handleContentEditableKeyDown);
+      composer.addEventListener("blur", handleFacebookBlur);
+      composer.addEventListener("focus", handleFacebookFocus);
+      monitorFacebookActions(composer);
+      composer.dataset.expanderListener = "true";
+    }
+  });
+  
+  const messengerInputs = document.querySelectorAll('div[aria-label*="message"], div[aria-label*="Message"], div[role="textbox"]');
+  messengerInputs.forEach(input => {
+    if (!input.dataset.expanderListener) {
+      input.addEventListener("input", handleContentEditableInput);
+      input.addEventListener("keydown", handleContentEditableKeyDown);
+      input.addEventListener("blur", handleFacebookBlur);
+      input.addEventListener("focus", handleFacebookFocus);
+      monitorFacebookActions(input);
+      input.dataset.expanderListener = "true";
+    }
+  });
+}
+
+function handleWhatsAppEditors() {
+  if (!window.location.hostname.includes('web.whatsapp.com')) {
+    return;
+  }
+  
+  const whatsappInputs = document.querySelectorAll('[contenteditable="true"][data-tab], [contenteditable="true"][title="Type a message"], ._2S1VP');
+  whatsappInputs.forEach(input => {
+    if (!input.dataset.expanderListener) {
+      input.addEventListener("input", handleContentEditableInput);
+      input.addEventListener("keydown", handleContentEditableKeyDown);
+      input.addEventListener("blur", handleWhatsAppBlur);
+      input.addEventListener("focus", handleWhatsAppFocus);
+      monitorWhatsAppActions(input);
+      input.dataset.expanderListener = "true";
+    }
+  });
 }
 
 // Handle dynamically added elements
@@ -345,7 +610,21 @@ const observer = new MutationObserver((mutations) => {
     if (mutation.addedNodes.length) {
       mutation.addedNodes.forEach((node) => {
         if (node.nodeType === Node.ELEMENT_NODE) {
-          if (isTextInput(node) || (node.querySelector && node.querySelectorAll('input, textarea, [contenteditable]').length > 0)) {
+          if (isTextInput(node) || 
+              (node.querySelector && node.querySelectorAll('input, textarea, [contenteditable], div[role="textbox"], div[data-contents="true"]').length > 0)) {
+            shouldReapply = true;
+          }
+          
+          if ((window.location.hostname.includes('facebook.com') || 
+               window.location.hostname.includes('messenger.com')) &&
+              (node.matches('div[role="textbox"], div[data-contents="true"], div[aria-label*="message"]') ||
+               node.querySelector('div[role="textbox"], div[data-contents="true"], div[aria-label*="message"]'))) {
+            shouldReapply = true;
+          }
+          
+          if (window.location.hostname.includes('web.whatsapp.com') &&
+              (node.matches('[contenteditable="true"][data-tab], [contenteditable="true"][title="Type a message"]') ||
+               node.querySelector('[contenteditable="true"][data-tab], [contenteditable="true"][title="Type a message"]'))) {
             shouldReapply = true;
           }
         }
@@ -355,7 +634,16 @@ const observer = new MutationObserver((mutations) => {
   
   if (shouldReapply) {
     clearTimeout(observer.debounceTimer);
-    observer.debounceTimer = setTimeout(applyListeners, 100);
+    observer.debounceTimer = setTimeout(() => {
+      applyListeners();
+      if (window.location.hostname.includes('facebook.com') || 
+          window.location.hostname.includes('messenger.com')) {
+        handleFacebookEditors();
+      }
+      if (window.location.hostname.includes('web.whatsapp.com')) {
+        handleWhatsAppEditors();
+      }
+    }, 100);
   }
 });
 
@@ -366,7 +654,9 @@ function isTextInput(element) {
   return (tagName === 'INPUT' && ['text', 'search', 'email', 'url', 'password'].includes(type)) ||
          (tagName === 'INPUT' && !type) ||
          tagName === 'TEXTAREA' ||
-         element.contentEditable === 'true';
+         element.contentEditable === 'true' ||
+         element.matches('div[role="textbox"], div[data-contents="true"]') ||
+         element.matches('[contenteditable="true"][data-tab], [contenteditable="true"][title="Type a message"]');
 }
 
 observer.observe(document.body, { childList: true, subtree: true });
@@ -388,13 +678,22 @@ function handleSpecialCases() {
   // WhatsApp Web
   if (window.location.hostname.includes('web.whatsapp.com')) {
     setTimeout(() => {
-      const whatsappInput = document.querySelector('[contenteditable="true"][data-tab="10"]');
-      if (whatsappInput && !whatsappInput.dataset.expanderListener) {
-        whatsappInput.addEventListener("input", handleContentEditableInput);
-        whatsappInput.addEventListener("keydown", handleContentEditableKeyDown);
-        whatsappInput.dataset.expanderListener = "true";
-      }
+      handleWhatsAppEditors();
     }, 3000);
+    
+    // Also check periodically for new editors
+    setInterval(handleWhatsAppEditors, 5000);
+  }
+  
+  // Facebook handling
+  if (window.location.hostname.includes('facebook.com') || 
+      window.location.hostname.includes('messenger.com')) {
+    setTimeout(() => {
+      handleFacebookEditors();
+    }, 3000);
+    
+    // Also check periodically for new editors
+    setInterval(handleFacebookEditors, 5000);
   }
 }
 
@@ -415,133 +714,3 @@ chrome.runtime.onMessage.addListener((message) => {
     loadSettings();
   }
 });
-
-// -----------------------------------------------------------------------------
-// Global event listeners
-//
-// To ensure the expander works across all types of inputs (including
-// dynamically created fields and rich text editors), we attach a pair of
-// listeners to the document itself.  These listeners delegate to the
-// appropriate handlers based on the target element.  By listening in the
-// capture phase, we catch events before other handlers have a chance to
-// interfere.  This eliminates the need to scan and register listeners on
-// every potential input individually.
-
-/**
- * Handle any input event bubbled to the document.  Delegates to the
- * appropriate function based on the target.  Only runs when the expander
- * feature is enabled and the target is a text input, textarea, or
- * contenteditable element.
- * @param {Event} event
- */
-function globalInputListener(event) {
-  if (!expanderEnabled) return;
-  const target = event.target;
-  if (!shouldExpandOnSite(target)) return;
-  // Determine if this event originated within a contenteditable region.  Some
-  // editors (e.g., TinyMCE) place text inside descendants of the element
-  // marked as contenteditable, so checking only the immediate target isn't
-  // sufficient.
-  let editableAncestor = null;
-  try {
-    if (target.isContentEditable) {
-      editableAncestor = target;
-    } else if (target.getAttribute && (target.getAttribute('contenteditable') === 'true' || target.getAttribute('contentEditable') === 'true')) {
-      editableAncestor = target;
-    } else if (target.closest) {
-      editableAncestor = target.closest('[contenteditable]');
-    }
-  } catch (e) {
-    // ignore errors from closest on non-element nodes
-  }
-  if (editableAncestor) {
-    handleContentEditableInput(event);
-  } else if (target.tagName === 'INPUT' || target.tagName === 'TEXTAREA') {
-    handleInput(event);
-  }
-}
-
-/**
- * Handle keydown events bubbled to the document.  Delegates to the
- * appropriate function based on the target and key.  It also fixes an
- * issue where the built‑in select all shortcut (Ctrl/Cmd + A) would
- * sometimes only select the abbreviation used to trigger an expansion.
- * When we detect the select all key combo we explicitly select the
- * contents of the input or contenteditable element.  This ensures the
- * expanded text is fully selected.
- * @param {KeyboardEvent} event
- */
-function globalKeyDownListener(event) {
-  const target = event.target;
-  // Fix select all: ensure full selection when meta/ctrl+A is pressed
-  if ((event.metaKey || event.ctrlKey) && event.key && event.key.toLowerCase() === 'a') {
-    // Check if we should skip custom handling for this site
-    const hostname = window.location.hostname;
-    
-    // Check if the hostname contains joomshaper.com (to handle subdomains)
-    if (hostname.includes('joomshaper.com')) {
-      return; // Let the browser handle CMD/CTRL+A natively for any joomshaper.com domain
-    }
-    
-    const rules = siteRules[hostname];
-    if (rules && rules.disableCustomSelectAll) {
-      return; // Let the browser handle CMD/CTRL+A natively
-    }
-    
-    // Only act on elements that support selection
-    if (target.tagName === 'INPUT' || target.tagName === 'TEXTAREA') {
-      event.preventDefault();
-      const length = target.value ? target.value.length : 0;
-      setTimeout(() => {
-        try {
-          target.setSelectionRange(0, length);
-        } catch (e) {
-          // Some input types (e.g. number) don't support selectionRange
-        }
-      }, 0);
-      return;
-    }
-    // Determine the editable ancestor for contenteditable elements
-    let editableAncestor = null;
-    try {
-      if (target.isContentEditable || (target.getAttribute && (target.getAttribute('contenteditable') === 'true' || target.getAttribute('contentEditable') === 'true'))) {
-        editableAncestor = target;
-      } else if (target.closest) {
-        editableAncestor = target.closest('[contenteditable]');
-      }
-    } catch (e) {}
-    if (editableAncestor) {
-      event.preventDefault();
-      const selection = editableAncestor.ownerDocument.getSelection();
-      const range = editableAncestor.ownerDocument.createRange();
-      range.selectNodeContents(editableAncestor);
-      selection.removeAllRanges();
-      selection.addRange(range);
-      return;
-    }
-  }
-  // For expansion triggers (space/tab/enter) delegate to specific handlers
-  if (!shouldExpandOnSite(target)) return;
-  // Determine if the event originated within a contenteditable region (see above)
-  let editableAncestor = null;
-  try {
-    if (target.isContentEditable) {
-      editableAncestor = target;
-    } else if (target.getAttribute && (target.getAttribute('contenteditable') === 'true' || target.getAttribute('contentEditable') === 'true')) {
-      editableAncestor = target;
-    } else if (target.closest) {
-      editableAncestor = target.closest('[contenteditable]');
-    }
-  } catch (e) {}
-  if (editableAncestor) {
-    handleContentEditableKeyDown(event);
-  } else if (target.tagName === 'INPUT' || target.tagName === 'TEXTAREA') {
-    handleKeyDown(event);
-  }
-}
-
-// Register global listeners in the capture phase so that we process the
-// events before other handlers.  This helps prevent conflicts with other
-// scripts that might stop propagation or change the input value.
-document.addEventListener('input', globalInputListener, true);
-document.addEventListener('keydown', globalKeyDownListener, true);
