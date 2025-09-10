@@ -173,6 +173,7 @@ The extension requests minimal permissions for maximum privacy:
 
 🔧 **Technical Enhancements**
 - **Fixed scrollbar issues**: Resolved body scrollbar display problems for smoother navigation
+- **Fixed Delete All and Clear Stats confirmation**: Resolved issue where Delete All and Clear Stats required multiple clicks to execute
 - **Text selection fix**: Resolved CMD+A/CTRL+A selection issues after text expansion
 - **Facebook editor compatibility**: Fixed text expansion issues on Facebook posts, comments, and messages
 - **WhatsApp Web compatibility**: Ensured proper text expansion and sending on WhatsApp Web
