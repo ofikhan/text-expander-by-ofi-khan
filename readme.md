@@ -137,7 +137,6 @@ text-expander-by-ofi-khan/
 ├── background.js         # Background script with default shortcuts
 ├── icons/                # Extension icons (16x16 to 128x128)
 │   ├── icon16.png
-│   ├── icon32.png
 │   ├── icon48.png
 │   └── icon128.png
 ├── LICENSE               # MIT License
