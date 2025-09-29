@@ -140,7 +140,7 @@ text-expander-by-ofi-khan/
 │   ├── icon48.png
 │   └── icon128.png
 ├── LICENSE               # MIT License
-└── README.md            # This file
+└── README.md             # This file
 ```
 
 ## 🔒 Privacy & Permissions
