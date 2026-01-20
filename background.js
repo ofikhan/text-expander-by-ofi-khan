@@ -11,6 +11,20 @@ const defaultSettings = {
   caseSensitive: false
 };
 
+const defaultCategories = {
+  "general": { name: "General", color: "#00594c" },
+  "work": { name: "Work", color: "#007bff" },
+  "personal": { name: "Personal", color: "#28a745" }
+};
+
+const defaultShortcutCategories = {
+  "/ty": "general",
+  "brb": "general",
+  "omw": "general",
+  "lmk": "general",
+  "sig": "personal"
+};
+
 chrome.runtime.onInstalled.addListener(() => {
   // Always ensure default shortcuts are available (helps users understand how to use the extension)
   chrome.storage.local.get("shortcuts", (data) => {
@@ -27,6 +41,23 @@ chrome.runtime.onInstalled.addListener(() => {
     }
     
     chrome.storage.local.set({ shortcuts: finalShortcuts });
+  });
+  
+  // Initialize categories
+  chrome.storage.local.get(["categories", "shortcutCategories"], (data) => {
+    const updates = {};
+    
+    if (!data.categories) {
+      updates.categories = defaultCategories;
+    }
+    
+    if (!data.shortcutCategories) {
+      updates.shortcutCategories = defaultShortcutCategories;
+    }
+    
+    if (Object.keys(updates).length > 0) {
+      chrome.storage.local.set(updates);
+    }
   });
   
   // Initialize settings
@@ -88,7 +119,7 @@ chrome.runtime.onMessage.addListener((message, _sender, sendResponse) => {
   }
   
   if (message.action === "exportData") {
-    chrome.storage.local.get(["shortcuts", "expansionStats", "expanderEnabled", "caseSensitive"], (data) => {
+    chrome.storage.local.get(["shortcuts", "expansionStats", "expanderEnabled", "caseSensitive", "categories", "shortcutCategories"], (data) => {
       const exportData = {
         shortcuts: data.shortcuts || {},
         stats: data.expansionStats || {},
@@ -96,6 +127,8 @@ chrome.runtime.onMessage.addListener((message, _sender, sendResponse) => {
           expanderEnabled: data.expanderEnabled !== false,
           caseSensitive: data.caseSensitive || false
         },
+        categories: data.categories || {},
+        shortcutCategories: data.shortcutCategories || {},
         exportDate: new Date().toISOString(),
         version: chrome.runtime.getManifest().version
       };
@@ -114,6 +147,8 @@ chrome.runtime.onMessage.addListener((message, _sender, sendResponse) => {
       dataToSave.expanderEnabled = importData.settings.expanderEnabled;
       dataToSave.caseSensitive = importData.settings.caseSensitive;
     }
+    if (importData.categories) dataToSave.categories = importData.categories;
+    if (importData.shortcutCategories) dataToSave.shortcutCategories = importData.shortcutCategories;
     
     chrome.storage.local.set(dataToSave, () => {
       // Notify all tabs about the update
@@ -146,10 +181,23 @@ chrome.runtime.onInstalled.addListener(() => {
     title: "Open Text Expander",
     contexts: ["editable"]
   });
+  
+  chrome.contextMenus.create({
+    id: "add-shortcut-from-selection",
+    title: "Add New Shortcut",
+    contexts: ["selection"]
+  });
 });
 
-chrome.contextMenus.onClicked.addListener((info) => {
+chrome.contextMenus.onClicked.addListener((info, tab) => {
   if (info.menuItemId === "open-expander") {
     chrome.action.openPopup();
+  } else if (info.menuItemId === "add-shortcut-from-selection") {
+    // Store the selected text
+    const selectedText = info.selectionText;
+    chrome.storage.local.set({ pendingShortcutText: selectedText }, () => {
+      // Open the popup
+      chrome.action.openPopup();
+    });
   }
 });

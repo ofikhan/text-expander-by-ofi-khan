@@ -12,6 +12,7 @@
   </h1>
   <div class="tab-container">
     <div class="tab active" data-tab="shortcuts">Shortcuts</div>
+    <div class="tab" data-tab="categories">Categories</div>
     <div class="tab" data-tab="settings">Settings</div>
     <div class="tab" data-tab="stats">Stats</div>
   </div>
@@ -19,9 +20,17 @@
   <!-- Shortcuts Tab -->
   <div id="shortcuts-tab" class="tab-content active">
     
+    <!-- Category Filter -->
+    <div class="category-filter-container">
+      <label for="category-filter">Filter by Category:</label>
+      <select id="category-filter" class="category-select">
+        <option value="all">All Categories</option>
+      </select>
+    </div>
+    
     <!-- Search Container -->
     <div class="search-container">
-      <input 
+      <input  
         type="text" 
         id="search-shortcuts" 
         class="search-box" 
@@ -50,11 +59,36 @@
     <div class="input-box">
       <input id="shortcut" placeholder="Shortcut (e.g., asap)" aria-label="Shortcut input">
       <textarea id="expanded" placeholder="Expanded text (e.g., as soon as possible)" aria-label="Expanded text input" style="width: 382px; height: 33px; resize: vertical;"></textarea>
+      <select id="shortcut-category" class="category-select" aria-label="Select category">
+        <option value="">Select Category</option>
+      </select>
     </div>
     
     <div class="button-group">
       <button id="add">Add Shortcut</button>
+      <button id="cancel-edit" class="cancel-button" style="display: none;">Cancel</button>
       <button id="delete-all" class="delete-button">Delete All</button>
+    </div>
+  </div>
+
+  <!-- Categories Tab -->
+  <div id="categories-tab" class="tab-content">
+    <div class="categories-section">
+      <h3>Manage Categories</h3>
+      <div id="category-list"></div>
+    </div>
+    
+    <div class="input-box">
+      <input id="category-name" placeholder="Category name (e.g., Work)" aria-label="Category name input" style="width: 270px">
+      <div class="color-picker-container">
+        <label for="category-color">Color:</label>
+        <input type="color" id="category-color" value="#00594c" aria-label="Category color picker">
+      </div>
+    </div>
+    
+    <div class="button-group">
+      <button id="add-category">Add Category</button>
+      <button id="cancel-category-edit" class="cancel-button" style="display: none;">Cancel</button>
     </div>
   </div>
 
