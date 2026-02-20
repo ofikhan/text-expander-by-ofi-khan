@@ -599,3 +599,7 @@ button:hover {
 #category-list::-webkit-scrollbar-thumb:hover {
   background: #004238;
 }
+
+.support{
+  color: #00594c;
+}

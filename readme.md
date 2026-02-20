@@ -193,7 +193,19 @@ The extension requests minimal permissions for maximum privacy:
 
 ## 📋 Changelog
 
-### Version 3.0 (Latest)
+### Version 3.1 (Latest)
+
+🆕 **Support & Community Features**
+
+✅ **Support Me Link**
+- **Support link in popup**: Direct link to support the developer (https://www.supportkori.com/ofikhan)
+- **Easy access**: Conveniently placed in the popup header next to the title
+- **Styled integration**: Matches extension's green color theme (#00594c)
+- **External link**: Opens in new tab without disrupting workflow
+- **Community support**: Help sustain development and new features
+- **Pointer emoji**: Visual indicator (👉) to draw attention to support option
+
+### Version 3.0
 
 🆕 **Context Menu Integration**
 
@@ -328,6 +340,7 @@ The extension requests minimal permissions for maximum privacy:
 - Some websites with heavy JavaScript may need initialization delays
 
 ## 📞 Support & Community
+- **In-App Support**: Click "Support Me" link in the extension popup
 - **GitHub Issues**: [Report bugs or request features](https://github.com/ofikhan/text-expander-by-ofi-khan/issues)
 - **Email Support**: [Contact developer](mailto:ofi.khan051@gmail.com)
 - **Developer Website**: [Ofi Khan](https://www.ofikhan.com)
