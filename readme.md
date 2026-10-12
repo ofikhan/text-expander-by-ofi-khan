@@ -1,5 +1,5 @@
 # Text Expander By Ofi Khan
-A powerful and lightweight Chrome extension designed to streamline text expansion across all websites. Perfect for customer support, developers, writers, and anyone who wants to eliminate repetitive typing. This tool allows you to create, manage, export, and import shortcuts with advanced features like variable support, usage statistics, and universal compatibility.
+A powerful and lightweight Chrome extension designed to streamline text expansion across all websites. Perfect for customer support, developers, writers, and anyone who wants to eliminate repetitive typing. This tool allows you to create, manage, export, and import shortcuts with advanced features like variable support, usage statistics, site control, and universal compatibility.
 
 ## ✨ Key Features
 
@@ -7,6 +7,40 @@ A powerful and lightweight Chrome extension designed to streamline text expansio
 - **Works on ALL websites** - Gmail, WhatsApp Web, social media, and more
 - **Smart input detection** - Supports regular text fields, rich text editors, and contenteditable elements
 - **Real-time expansion** - Text expands as you type or when you press space/tab/enter
+- **Password fields are always protected** - Text expansion never runs in password inputs
+
+### ☁️ Google Account Sync
+- **Same experience on every computer**: Sign in to Chrome with your Google account on your office PC and your home PC, and your shortcuts follow you
+- **Syncs everything**: Shortcuts, categories, settings (including the prefix character and site control), and usage statistics
+- **Smart merging**: Changes made on two computers are combined instead of one overwriting the other (usage counts from both computers add up)
+- **Deletions sync too**: Delete a shortcut on one computer and it disappears from the others
+- **On by default, easy to turn off**: Use the "Sync with Google Account" toggle in the Settings tab
+- **Status at a glance**: See when you last synced and how much sync storage you are using, with a "Sync Now" button
+- **Built on Chrome Sync**: No extra account or server; your data travels through your own Google account
+
+### 🌐 Site Control (Whitelist / Blacklist)
+- **Choose one mode**: Work on all sites, Whitelist, or Blacklist
+- **Whitelist mode**: The extension works ONLY on the sites you list and is disabled everywhere else
+- **Blacklist mode**: The extension is disabled on the sites you list and works everywhere else
+- **Subdomains included**: Adding `facebook.com` also covers `www.facebook.com`, `m.facebook.com`, and so on
+- **Paste any URL**: `https://www.ofikhan.com/page` is automatically saved as `ofikhan.com`
+- **Separate lists per mode**: Switching modes never erases the other mode's list
+- **Instant effect**: Changes apply immediately, with no page reload needed
+- **Included in backups**: Site control settings are saved in export/import files
+
+### 🔤 Optional Prefix Character
+- **Off by default**: Shortcuts work exactly as before until you turn it on
+- **Your own character**: Choose any single character (e.g., `/` or `_`) in the Settings tab
+- **Prefix required when on**: With `/` as the prefix, `/brb` expands to "Be right back" while plain `brb` stays as typed
+- **Clean replacement**: The prefix is removed when the shortcut expands
+- **Works with existing shortcuts**: Shortcuts that already start with the prefix character (like `/ty`) work as they are
+- **Instant effect**: Changes apply immediately, with no page reload needed
+- **Included in backups**: The prefix setting is saved in export/import files
+
+### 🔒 Password Field Protection
+- **Never expands in password fields**: Typing a shortcut like `brb` in a password box stays exactly as typed
+- **Show-password toggles handled**: Fields marked with `autocomplete="current-password"` or `"new-password"` are also skipped, even if the site switches them to plain text
+- **No listeners attached**: Password inputs are not monitored at all
 
 ### 📝 Advanced Shortcut Management
 - **Add and Delete Shortcuts**: Create custom shortcuts (e.g., `asap` → "As Soon As Possible")
@@ -51,12 +85,15 @@ Support for dynamic content insertion with cursor positioning:
 ### 🎛️ Enhanced Settings & Controls
 - **Enable/Disable toggle** - Turn the extension on/off without uninstalling
 - **Case sensitivity control** - Match shortcuts exactly or ignore case
+- **Google Account Sync** - Keep shortcuts, settings, and stats in sync across your computers
+- **Prefix character** - Optionally require a character like `/` before shortcuts
+- **Site control** - Whitelist or blacklist websites from the Settings tab
 - **Visual status indicators** - Clear indication of extension status with improved positioning
 - **Real-time settings sync** - Changes apply immediately across all tabs
 - **Clean tabbed interface** - Streamlined navigation without redundant titles
 
 ### 💾 Complete Data Management
-- **Enhanced Export/Import** - Backup shortcuts, settings, statistics, and categories in JSON format
+- **Enhanced Export/Import** - Backup shortcuts, settings, statistics, categories, site control, and prefix settings in JSON format
 - **Complete data backup** - Never lose your configurations, includes version info and categories
 - **Easy migration** - Transfer settings between devices/browsers seamlessly
 - **Clear statistics option** - Reset usage data when needed
@@ -107,7 +144,7 @@ Search on chrome web store: [Text Expander By Ofi Khan](https://chromewebstore.g
 5. **Position cursor** with `{cursor}` variable for precise placement
 6. **Click "Add Shortcut"** to save with visual confirmation
 
-**Method 2: From Selected Text (NEW!)**
+**Method 2: From Selected Text**
 1. **Select any text** on any webpage
 2. **Right-click** and choose "Add New Shortcut"
 3. **Extension opens** with selected text in expanded field
@@ -137,6 +174,56 @@ Search on chrome web store: [Text Expander By Ofi Khan](https://chromewebstore.g
 5. **Delete individual shortcuts** with red delete buttons
 6. **Delete all shortcuts** using the "Delete All" button (requires confirmation)
 
+### Using Google Account Sync
+1. **Sign in to Chrome** with your Google account and make sure **Chrome sync is turned on** (Chrome Settings → You and Google → Sync)
+2. **Install the extension** on each computer where you want your shortcuts
+3. **Open the Settings tab**: the **Sync with Google Account** toggle is on by default
+4. **Use it normally**: changes upload automatically a few seconds after you make them
+5. **On a new computer**: install the extension, sign in, and give it a minute. Your shortcuts and settings arrive on their own
+6. **Check status or force a sync**: the status line shows the last sync time and storage used; click **Sync Now** to sync immediately
+
+**Good to know**
+- Chrome limits sync storage to about 100 KB. Data is compressed, so this fits hundreds of shortcuts
+- If sync storage is full, the extension keeps working and shows a warning; your data stays safe on your computer
+- Turning sync off keeps your data on this computer and stops uploading and downloading changes
+- Don't store passwords or other secrets in shortcuts, since synced data passes through your Google account
+- "Delete All" and "Clear Stats" sync to your other computers too, so back up with Export Data first
+
+### Using the Prefix Character
+1. **Open the Settings tab** and turn on **Require Prefix Character**
+2. **Choose your character** in the box that appears (it starts as `/`; you can use `_` or any other single character)
+3. **Type the prefix before a shortcut**: `/brb` expands to "Be right back"
+4. **Plain shortcuts no longer expand**: typing `brb` on its own stays as `brb`
+5. **Turn the toggle off** at any time to go back to typing shortcuts without a prefix
+
+**Good to know**
+- The prefix is off by default
+- The prefix character is removed when the shortcut expands
+- Shortcuts that already start with the prefix (like `/ty`) work as they are, with no double prefix
+- The prefix must be a single character and cannot be a space
+
+### Using Site Control (Whitelist / Blacklist)
+
+**Option A: Use the extension only on specific sites (Whitelist)**
+1. **Open the Settings tab** and find the **Site Control** section
+2. **Select "Whitelist: work only on these sites"**
+3. **Type a site** (e.g., `facebook.com`) and click **Add**
+4. **Repeat** for every site where you want text expansion (e.g., `ofikhan.com`)
+5. The extension is now **disabled on all other sites**
+
+**Option B: Turn the extension off on specific sites (Blacklist)**
+1. **Open the Settings tab** and find the **Site Control** section
+2. **Select "Blacklist: disable on these sites"**
+3. **Type a site** and click **Add**
+4. The extension is now **disabled on the listed sites** and works everywhere else
+
+**Good to know**
+- Only one mode can be active at a time, but each mode remembers its own list
+- Listed sites include all subdomains
+- An empty whitelist means the extension works nowhere
+- Different domains must be added separately (e.g., `facebook.com` and `messenger.com`)
+- Select **"Work on all sites"** to turn site control off at any time
+
 ### Using Advanced Variables
 Create dynamic shortcuts with variables and cursor positioning:
 ```
@@ -154,9 +241,9 @@ Result: Best regards,
 
 ### Advanced Features
 - **Categories Tab**: Organize shortcuts into color-coded categories
-- **Settings Tab**: Configure case sensitivity and enable/disable
+- **Settings Tab**: Configure case sensitivity, enable/disable, prefix character, and site control
 - **Statistics Tab**: View usage patterns and most-used shortcuts
-- **Export/Import**: Backup your complete configuration including categories
+- **Export/Import**: Backup your complete configuration including categories, site control, and prefix settings
 - **Search Feature**: Quickly find shortcuts in large collections with real-time search
 - **Filter by Category**: View shortcuts by category with shortcut counts
 
@@ -165,6 +252,7 @@ The extension intelligently adapts to different websites:
 - **Gmail**: Works in compose windows and replies
 - **WhatsApp Web**: Expands in chat input
 - **Social Media**: Compatible with Facebook, X, LinkedIn, etc.
+- **Password fields**: Never expanded, on any site
 
 ## 📁 Project Structure
 ```
@@ -173,6 +261,13 @@ text-expander-by-ofi-khan/
 ├── popup.html            # Main popup interface with tabbed layout
 ├── popup.js              # Popup logic with settings and statistics
 ├── popup.css             # Modern styling for popup interface
+├── sitecontrol.js        # Whitelist/blacklist logic for the popup
+├── sitecontrol.css       # Styling for the Site Control section
+├── prefix.js             # Prefix character setting logic for the popup
+├── prefix.css            # Styling for the prefix character setting
+├── sync.js               # Google Account Sync engine (runs in the background)
+├── syncui.js             # Sync toggle, status, and Sync Now button in the popup
+├── syncui.css            # Styling for the sync section
 ├── content.js            # Universal text expansion engine
 ├── content.css           # Minimal content script styles
 ├── background.js         # Background script with default shortcuts
@@ -188,12 +283,63 @@ text-expander-by-ofi-khan/
 The extension requests minimal permissions for maximum privacy:
 - **Storage**: Save your shortcuts and settings locally on your device
 - **ActiveTab**: Work on the current webpage only (optional permission)
-- **ContextMenus**: Right-click menu access in text fields
-**🔒 Privacy Guarantee**: No data is sent to external servers - everything stays on your device. Your shortcuts, statistics, and settings are completely private.
+- **ContextMenus**: Right-click menu access in text fields and on selected text
+
+**🔒 Privacy Guarantee**: No data is ever sent to the developer or to any third-party server. Your shortcuts, statistics, and settings stay on your device. If Google Account Sync is on (you can turn it off in Settings), your data is also stored in your own Google account through Chrome Sync, the same way Chrome syncs your bookmarks and passwords.
+
+**Password fields are never touched**: The extension is disabled on all password inputs, so nothing you type there is read or changed.
 
 ## 📋 Changelog
 
-### Version 3.1 (Latest)
+### Version 4.0 (Latest)
+
+🆕 **Major Release: Google Account Sync, Privacy Controls, Site Management & Prefix Trigger**
+
+✅ **Google Account Sync**
+- **Sync across computers**: Shortcuts, categories, settings, prefix character, site control, and usage statistics follow your Google account, so your office PC and home PC give the same experience
+- **Automatic**: Changes upload a few seconds after you make them and download on your other computers without any action
+- **Settings toggle**: "Sync with Google Account" is on by default and can be turned off any time
+- **Status and manual sync**: See the last sync time and sync storage used, and click "Sync Now" to sync immediately
+- **Smart three-way merge**: Edits made on two computers are combined; deletions propagate; usage counts from both computers add up
+- **First sync is safe**: When a second computer syncs for the first time, existing shortcuts on both are merged, and default examples never override your synced data
+- **Compact storage**: Data is compressed and split into small pieces to fit Chrome's sync limits (about 100 KB total), which is enough for hundreds of shortcuts
+- **Friendly limits handling**: If sync storage is full or Chrome's write limit is hit, a clear message appears and the extension retries; local data is never lost
+- **Default shortcuts only on fresh install**: Deleted example shortcuts no longer come back after extension updates
+
+✅ **Site Control: Whitelist & Blacklist**
+- **Whitelist mode**: Text expansion works only on the sites you add and is disabled everywhere else
+- **Blacklist mode**: Text expansion is disabled on the sites you add and works everywhere else
+- **One mode at a time**: Choose "Work on all sites", "Whitelist", or "Blacklist" in the Settings tab
+- **Subdomain support**: Adding `example.com` also covers `www.example.com`, `app.example.com`, etc.
+- **Smart input**: Paste a full URL or just a domain; it is cleaned up automatically (protocol, `www.`, path, and port are removed)
+- **Separate lists**: Whitelist and blacklist are stored independently, so switching modes never loses your lists
+- **Duplicate and invalid entry detection**: Clear alerts when a site is already listed or isn't a valid website
+- **Helpful guidance**: Context-aware help text, plus a notice when the whitelist is empty
+- **Instant effect**: Changes apply immediately to open tabs without reloading
+- **Backup support**: Site control is included in export/import (older backup files still import normally)
+
+✅ **Optional Prefix Character**
+- **New setting**: "Require Prefix Character" toggle in the Settings tab, off by default
+- **Custom character**: Pick any single character (e.g., `/` or `_`) as the prefix
+- **Strict triggering when on**: `/brb` expands to "Be right back"; plain `brb` does not
+- **Prefix removed on expansion**: The prefix is not left behind in the expanded text
+- **Existing shortcuts supported**: Shortcuts that already start with the prefix (like `/ty`) keep working without a double prefix
+- **Safe input**: The prefix must be one non-space character; invalid entries revert to the last valid character
+- **Instant effect and backups**: Applies immediately in open tabs and is included in export/import (older backup files still import normally)
+
+✅ **Password Field Protection**
+- Text expansion is now completely disabled in password fields
+- Typing a shortcut like `brb` in a password box stays exactly as typed
+- Also skips fields marked with `autocomplete="current-password"` / `"new-password"`, including fields switched to plain text by a "show password" toggle
+- No listeners are attached to password inputs at all
+
+🔧 **Technical Enhancements**
+- **New files**: `sync.js`, `syncui.js`, `syncui.css`, `sitecontrol.js`, `sitecontrol.css`, `prefix.js`, and `prefix.css` keep the new features self-contained
+- **Real-time settings sync**: Content scripts now listen to storage changes, so the Enable toggle, case sensitivity, shortcuts, prefix, and site control all take effect instantly in open tabs
+- **Central site check**: Site rules are enforced in one place, covering every input type, including Facebook and WhatsApp Web editors
+- **Background script**: Loads the sync engine; defaults initialized for site control; export/import extended for site control and the prefix setting
+
+### Version 3.1
 
 🆕 **Support & Community Features**
 
@@ -338,6 +484,10 @@ The extension requests minimal permissions for maximum privacy:
 - Extension works best with standard HTML input elements
 - Keyboard shortcuts might require manual configuration in Chrome extensions settings
 - Some websites with heavy JavaScript may need initialization delays
+- Google Account Sync depends on Chrome Sync: you must be signed in to Chrome with sync turned on, and changes can take from a few seconds to a few minutes to reach another computer
+- Chrome limits sync storage to about 100 KB; if you hit the limit the extension shows a warning and keeps working locally
+- If two computers change the same shortcut at nearly the same time, the most recent edit wins
+- Site control checks the address of each frame, so a cross-origin iframe embedded on a whitelisted site needs its own domain added to the whitelist
 
 ## 📞 Support & Community
 - **In-App Support**: Click "Support Me" link in the extension popup
@@ -354,10 +504,13 @@ The extension requests minimal permissions for maximum privacy:
 5. **Leverage variables**: Use variables for dynamic content like dates and time
 6. **Use the search feature**: Quickly find shortcuts in large collections using the search box
 7. **Filter by category**: Use category filter to focus on specific shortcut groups
-8. **Regular backups**: Use the export feature to create regular backups of your shortcuts and categories
+8. **Regular backups**: Use the export feature to create regular backups of your shortcuts, categories, and site control settings
 9. **Monitor statistics**: Keep an eye on your most-used shortcuts using the statistics tab
 10. **Edit instead of delete**: Use edit feature to modify shortcuts and preserve statistics
 11. **Delete unused shortcuts**: Regularly clean up your list by deleting unused shortcuts
+12. **Avoid accidental expansions**: Turn on the prefix character (e.g., `/brb`) so short shortcuts never expand inside ordinary words you type
+13. **Back up before bulk deletes**: With sync on, "Delete All" and "Clear Stats" affect all your computers, so use Export Data first
+14. **Limit where it runs**: Use a whitelist to restrict the extension to a few trusted sites, or a blacklist to switch it off on sites where it gets in the way
 
 ## 📄 License
 This project is open-source and available under the [MIT License](LICENSE).

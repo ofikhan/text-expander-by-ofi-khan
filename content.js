@@ -5,12 +5,71 @@ let lastExpansion = null;
 let facebookExpansionMap = new WeakMap(); // Track expansions for Facebook elements
 let whatsappExpansionMap = new WeakMap(); // Track expansions for WhatsApp elements
 
+// Site control (whitelist / blacklist). Mode is one of: 'off', 'whitelist', 'blacklist'
+let siteFilterMode = 'off';
+let siteWhitelist = [];
+let siteBlacklist = [];
+
+// Optional trigger prefix (e.g. "/" so only "/brb" expands, not "brb"). Off by default
+let prefixEnabled = false;
+let prefixChar = '/';
+
+// The exact text the user must type to trigger a shortcut.
+// Shortcuts that already start with the prefix (e.g. "/ty") are used as-is.
+function getRequiredTrigger(shortcut) {
+  if (!prefixEnabled || !prefixChar) return shortcut;
+  return shortcut.startsWith(prefixChar) ? shortcut : prefixChar + shortcut;
+}
+
+// True if hostname equals the domain or is a subdomain of it
+function hostMatchesDomain(hostname, domain) {
+  return hostname === domain || hostname.endsWith('.' + domain);
+}
+
+// Decides whether the extension may run on the current site
+function isSiteAllowed() {
+  const hostname = window.location.hostname.toLowerCase();
+
+  if (siteFilterMode === 'whitelist') {
+    return siteWhitelist.some((domain) => hostMatchesDomain(hostname, domain));
+  }
+  if (siteFilterMode === 'blacklist') {
+    return !siteBlacklist.some((domain) => hostMatchesDomain(hostname, domain));
+  }
+  return true;
+}
+
+// Returns true if the element is (or is meant to be) a password field
+function isPasswordField(element) {
+  if (!element || !element.tagName) return false;
+
+  // Standard password inputs
+  if (element.tagName === 'INPUT') {
+    const type = (element.getAttribute('type') || '').toLowerCase();
+    if (type === 'password' || element.type === 'password') return true;
+  }
+
+  // Fields flagged as passwords via autocomplete, even if the type was
+  // switched to "text" by a "show password" toggle
+  const autocomplete = ((element.getAttribute && element.getAttribute('autocomplete')) || '').toLowerCase();
+  if (autocomplete.includes('current-password') || autocomplete.includes('new-password')) {
+    return true;
+  }
+
+  return false;
+}
+
 // Load all settings
 function loadSettings() {
-  chrome.storage.local.get(["shortcuts", "expanderEnabled", "caseSensitive"], (data) => {
+  chrome.storage.local.get(["shortcuts", "expanderEnabled", "caseSensitive", "siteFilterMode", "whitelist", "blacklist", "prefixEnabled", "prefixChar"], (data) => {
     shortcuts = data.shortcuts || {};
+    prefixEnabled = data.prefixEnabled === true;
+    prefixChar = (typeof data.prefixChar === 'string' && data.prefixChar) ? data.prefixChar : '/';
     expanderEnabled = data.expanderEnabled !== false;
     caseSensitive = data.caseSensitive || false;
+    siteFilterMode = ['whitelist', 'blacklist'].includes(data.siteFilterMode) ? data.siteFilterMode : 'off';
+    siteWhitelist = Array.isArray(data.whitelist) ? data.whitelist : [];
+    siteBlacklist = Array.isArray(data.blacklist) ? data.blacklist : [];
     applyListeners();
   });
 }
@@ -21,7 +80,6 @@ function getTextInputElements() {
     input[type='search'], 
     input[type='email'], 
     input[type='url'], 
-    input[type='password'],
     input:not([type]),
     textarea,
     [contenteditable='true'],
@@ -56,6 +114,9 @@ function getTextInputElements() {
 
 function applyListeners() {
   getTextInputElements().forEach((input) => {
+    // Never attach listeners to password fields
+    if (isPasswordField(input)) return;
+
     if (!input.dataset.expanderListener) {
       if (input.contentEditable === 'true' || 
           input.matches('div[role="textbox"], div[data-contents="true"]') ||
@@ -104,10 +165,12 @@ function expandVariables(text) {
 // Enhanced matching function
 function findMatchingShortcut(word, shortcuts) {
   if (!expanderEnabled) return null;
+  if (!isSiteAllowed()) return null;
   
   for (const [shortcut, expanded] of Object.entries(shortcuts)) {
     const matchWord = caseSensitive ? word : word.toLowerCase();
-    const matchShortcut = caseSensitive ? shortcut : shortcut.toLowerCase();
+    const trigger = getRequiredTrigger(shortcut);
+    const matchShortcut = caseSensitive ? trigger : trigger.toLowerCase();
     
     if (matchWord === matchShortcut) {
       return { shortcut, expanded };
@@ -140,6 +203,9 @@ const siteRules = {
 };
 
 function shouldExpandOnSite(element) {
+  // Never expand text in password fields
+  if (isPasswordField(element)) return false;
+
   const hostname = window.location.hostname;
   const rules = siteRules[hostname];
   
@@ -602,6 +668,21 @@ function handleWhatsAppEditors() {
   });
 }
 
+function isTextInput(element) {
+  // Password fields are never treated as text inputs
+  if (isPasswordField(element)) return false;
+
+  const tagName = element.tagName;
+  const type = element.type;
+  
+  return (tagName === 'INPUT' && ['text', 'search', 'email', 'url'].includes(type)) ||
+         (tagName === 'INPUT' && !type) ||
+         tagName === 'TEXTAREA' ||
+         element.contentEditable === 'true' ||
+         element.matches('div[role="textbox"], div[data-contents="true"]') ||
+         element.matches('[contenteditable="true"][data-tab], [contenteditable="true"][title="Type a message"]');
+}
+
 // Handle dynamically added elements
 const observer = new MutationObserver((mutations) => {
   let shouldReapply = false;
@@ -646,18 +727,6 @@ const observer = new MutationObserver((mutations) => {
     }, 100);
   }
 });
-
-function isTextInput(element) {
-  const tagName = element.tagName;
-  const type = element.type;
-  
-  return (tagName === 'INPUT' && ['text', 'search', 'email', 'url', 'password'].includes(type)) ||
-         (tagName === 'INPUT' && !type) ||
-         tagName === 'TEXTAREA' ||
-         element.contentEditable === 'true' ||
-         element.matches('div[role="textbox"], div[data-contents="true"]') ||
-         element.matches('[contenteditable="true"][data-tab], [contenteditable="true"][title="Type a message"]');
-}
 
 observer.observe(document.body, { childList: true, subtree: true });
 
@@ -705,6 +774,15 @@ if (document.readyState === 'loading') {
 } else {
   handleSpecialCases();
 }
+
+// Apply settings changes (including site whitelist/blacklist) instantly, without a page reload
+chrome.storage.onChanged.addListener((changes, area) => {
+  if (area !== 'local') return;
+  const relevantKeys = ['shortcuts', 'expanderEnabled', 'caseSensitive', 'siteFilterMode', 'whitelist', 'blacklist', 'prefixEnabled', 'prefixChar'];
+  if (relevantKeys.some((key) => key in changes)) {
+    loadSettings();
+  }
+});
 
 // Listen for updates from popup/background
 chrome.runtime.onMessage.addListener((message) => {

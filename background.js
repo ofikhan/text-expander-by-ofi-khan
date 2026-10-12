@@ -1,5 +1,13 @@
+// Google Account Sync engine (see sync.js).
+// If sync.js is missing from the extension folder, the rest of the extension still works.
+try {
+  importScripts('sync.js');
+} catch (error) {
+  console.error('Text Expander: could not load sync.js. Make sure sync.js is in the extension folder.', error);
+}
+
 const defaultShortcuts = {
-  "/ty": "Thank you",
+  "ty": "Thank you",
   "brb": "Be right back",
   "omw": "On my way",
   "lmk": "Let me know",
@@ -18,16 +26,18 @@ const defaultCategories = {
 };
 
 const defaultShortcutCategories = {
-  "/ty": "general",
+  "ty": "general",
   "brb": "general",
   "omw": "general",
   "lmk": "general",
   "sig": "personal"
 };
 
-chrome.runtime.onInstalled.addListener(() => {
-  // Always ensure default shortcuts are available (helps users understand how to use the extension)
+chrome.runtime.onInstalled.addListener((details) => {
+  // Add the default example shortcuts on a fresh install only. Doing it on every update would
+  // bring back default shortcuts you deleted, and would push them to your other computers.
   chrome.storage.local.get("shortcuts", (data) => {
+    if (details.reason !== "install") return;
     const existingShortcuts = data.shortcuts || {};
     
     // Start with existing shortcuts, then add any missing defaults
@@ -77,6 +87,18 @@ chrome.runtime.onInstalled.addListener(() => {
       chrome.storage.local.set({ expansionStats: {} });
     }
   });
+
+  // Initialize site control (whitelist / blacklist). Default: work on all sites
+  chrome.storage.local.get(["siteFilterMode", "whitelist", "blacklist"], (data) => {
+    const siteDefaults = {};
+    if (data.siteFilterMode === undefined) siteDefaults.siteFilterMode = "off";
+    if (data.whitelist === undefined) siteDefaults.whitelist = [];
+    if (data.blacklist === undefined) siteDefaults.blacklist = [];
+
+    if (Object.keys(siteDefaults).length > 0) {
+      chrome.storage.local.set(siteDefaults);
+    }
+  });
 });
 
 chrome.runtime.onMessage.addListener((message, _sender, sendResponse) => {
@@ -119,7 +141,7 @@ chrome.runtime.onMessage.addListener((message, _sender, sendResponse) => {
   }
   
   if (message.action === "exportData") {
-    chrome.storage.local.get(["shortcuts", "expansionStats", "expanderEnabled", "caseSensitive", "categories", "shortcutCategories"], (data) => {
+    chrome.storage.local.get(["shortcuts", "expansionStats", "expanderEnabled", "caseSensitive", "categories", "shortcutCategories", "siteFilterMode", "whitelist", "blacklist", "prefixEnabled", "prefixChar"], (data) => {
       const exportData = {
         shortcuts: data.shortcuts || {},
         stats: data.expansionStats || {},
@@ -129,6 +151,15 @@ chrome.runtime.onMessage.addListener((message, _sender, sendResponse) => {
         },
         categories: data.categories || {},
         shortcutCategories: data.shortcutCategories || {},
+        siteControl: {
+          mode: data.siteFilterMode || "off",
+          whitelist: data.whitelist || [],
+          blacklist: data.blacklist || []
+        },
+        prefix: {
+          enabled: data.prefixEnabled === true,
+          char: data.prefixChar || "/"
+        },
         exportDate: new Date().toISOString(),
         version: chrome.runtime.getManifest().version
       };
@@ -149,6 +180,31 @@ chrome.runtime.onMessage.addListener((message, _sender, sendResponse) => {
     }
     if (importData.categories) dataToSave.categories = importData.categories;
     if (importData.shortcutCategories) dataToSave.shortcutCategories = importData.shortcutCategories;
+
+    // Site control (older backup files won't have this, which is fine)
+    if (importData.siteControl) {
+      const siteControl = importData.siteControl;
+      if (["off", "whitelist", "blacklist"].includes(siteControl.mode)) {
+        dataToSave.siteFilterMode = siteControl.mode;
+      }
+      if (Array.isArray(siteControl.whitelist)) {
+        dataToSave.whitelist = siteControl.whitelist.filter((d) => typeof d === "string");
+      }
+      if (Array.isArray(siteControl.blacklist)) {
+        dataToSave.blacklist = siteControl.blacklist.filter((d) => typeof d === "string");
+      }
+    }
+    
+    // Trigger prefix (older backup files won't have this, which is fine)
+    if (importData.prefix) {
+      const prefix = importData.prefix;
+      if (typeof prefix.enabled === "boolean") {
+        dataToSave.prefixEnabled = prefix.enabled;
+      }
+      if (typeof prefix.char === "string" && prefix.char.length > 0 && !/\s/.test(prefix.char)) {
+        dataToSave.prefixChar = Array.from(prefix.char)[0];
+      }
+    }
     
     chrome.storage.local.set(dataToSave, () => {
       // Notify all tabs about the update
@@ -201,3 +257,14 @@ chrome.contextMenus.onClicked.addListener((info, tab) => {
     });
   }
 });
+
+// Start Google Account Sync (the on/off toggle is in the Settings tab)
+if (typeof SyncEngine !== 'undefined') {
+  SyncEngine.init({
+    defaults: {
+      shortcuts: defaultShortcuts,
+      categories: defaultCategories,
+      shortcutCategories: defaultShortcutCategories
+    }
+  });
+}

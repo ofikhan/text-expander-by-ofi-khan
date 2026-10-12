@@ -1,0 +1,126 @@
+/* Site Control (whitelist / blacklist) */
+.site-control h3 {
+  color: #00594c;
+  font-size: 14px;
+  margin: 0 0 10px 0;
+}
+
+.site-mode-options {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.site-mode-option {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 14px;
+  color: #00594c;
+  cursor: pointer;
+}
+
+.site-mode-option input {
+  accent-color: #00594c;
+  margin: 0;
+  cursor: pointer;
+}
+
+#site-list-panel {
+  display: none;
+  margin-top: 12px;
+  padding-top: 12px;
+  border-top: 1px solid #ddd;
+}
+
+.site-help {
+  font-size: 12px;
+  color: #666;
+  line-height: 1.4;
+  margin: 0 0 8px 0;
+}
+
+.site-input-row {
+  display: flex;
+  gap: 5px;
+}
+
+#site-input {
+  flex: 1;
+  padding: 8px;
+  border: 1px solid #00594c;
+  border-radius: 3px;
+  font-size: 14px;
+  font-family: Arial, sans-serif;
+}
+
+#site-input:focus-visible {
+  outline: 1px solid #00594c;
+}
+
+#site-input:focus {
+  box-shadow: 0 0 0 3px rgba(0, 89, 76, 0.1);
+}
+
+#site-input::placeholder {
+  color: #888;
+}
+
+#site-list {
+  max-height: 110px;
+  overflow-y: auto;
+  margin-top: 8px;
+  padding-right: 5px;
+}
+
+#site-list::-webkit-scrollbar {
+  width: 6px;
+}
+
+#site-list::-webkit-scrollbar-track {
+  background: #f1f1f1;
+  border-radius: 3px;
+}
+
+#site-list::-webkit-scrollbar-thumb {
+  background: #00594c;
+  border-radius: 3px;
+}
+
+.site-item {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 6px 8px;
+  margin-bottom: 5px;
+  background: #f5f6f5;
+  border-radius: 3px;
+  border-left: 3px solid #00594c;
+  font-size: 13px;
+}
+
+.site-item span {
+  color: #00594c;
+  font-weight: bold;
+  word-break: break-all;
+}
+
+.site-remove {
+  background: none;
+  color: #dc3545;
+  border: 1px solid #ddd;
+  padding: 2px 8px;
+  margin-left: 8px;
+}
+
+.site-remove:hover {
+  background-color: #ffe5e5;
+  border-color: #dc3545;
+}
+
+.site-empty {
+  font-size: 12px;
+  color: #666;
+  text-align: center;
+  margin: 0;
+}
